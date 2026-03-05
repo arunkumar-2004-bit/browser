@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Search Browser</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 1rem;
+            text-align: center;
+            color: white;
+        }
+        .search-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        .search-box {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            outline: none;
+        }
+        .search-btn {
+            display: none; /* Enter key triggers search */
+        }
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 1.1rem;
+            margin: 2rem 0;
+        }
+        .results {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        .result {
+            background: white;
+            margin-bottom: 1rem;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .result:hover {
+            transform: translateY(-2px);
+        }
+        .result-header {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        .result-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        .result-url {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.95rem;
+        }
+        .result-url:hover {
+            text-decoration: underline;
+        }
+        .result-abstract {
+            padding: 0 1.5rem 1.5rem;
+            color: #555;
+            line-height: 1.6;
+        }
+        .no-results {
+            text-align: center;
+            color: white;
+            font-size: 1.2rem;
+            margin: 3rem 0;
+        }
+        @media (max-width: 768px) {
+            .search-container {
+                margin: 1rem auto;
+            }
+            .result-header {
+                padding: 1rem;
+            }
+            .result-title {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 Web Search Browser</h1>
+        <p>Search the entire web instantly</p>
+    </div>
+    
+    <div class="search-container">
+        <input type="text" class="search-box" id="searchInput" placeholder="Enter your search query and press Enter...">
+        <button class="search-btn" onclick="search()">Search</button>
+    </div>
+    
+    <div class="loading" id="loading" style="display: none;">🔍 Searching the web...</div>
+    
+    <div class="results" id="results"></div>
+
+    <script>
+        const API_URL = 'https://api.duckduckgo.com/?';
+        const PARAMS = 'q={query}&format=json&pretty=1&no_html=1&skip_disambig=1';
+
+        const searchInput = document.getElementById('searchInput');
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                search();
+            }
+        });
+
+        async function search() {
+            const query = searchInput.value.trim();
+            if (!query) return;
+
+            loading.style.display = 'block';
+            results.innerHTML = '';
+
+            try {
+                const url = API_URL + PARAMS.replace('{query}', encodeURIComponent(query));
+                const response = await fetch(url);
+                const data = await response.json();
+
+                displayResults(data, query);
+            } catch (error) {
+                results.innerHTML = '<div class="no-results">❌ Search failed. Please try again.</div>';
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        function displayResults(data, query) {
+            if (data.Abstract && data.AbstractText) {
+                results.innerHTML += createResult({
+                    title: data.Heading || 'Summary',
+                    url: data.AbstractURL || `https://duckduckgo.com/?q=${encodeURIComponent(query)}`,
+                    text: data.AbstractText
+                });
+            }
+
+            if (data.RelatedTopics && data.RelatedTopics.length > 0) {
+                data.RelatedTopics.slice(0, 10).forEach(topic => {
+                    if (topic.Result) {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(topic.Result, 'text/html');
+                        const link = doc.querySelector('a');
+                        const text = doc.body.textContent;
+
+                        if (link && text) {
+                            results.innerHTML += createResult({
+                                title: link.textContent.trim(),
+                                url: link.href,
+                                text: text.replace(link.textContent, '').trim()
+                            });
+                        }
+                    }
+                });
+            }
+
+            if (results.innerHTML === '') {
+                results.innerHTML = '<div class="no-results">No results found for your query.</div>';
+            }
+        }
+
+        function createResult({title, url, text}) {
+            return `
+                <div class="result">
+                    <div class="result-header">
+                        <a href="${url}" target="_blank" class="result-title">${title}</a>
+                        <br>
+                        <a href="${url}" target="_blank" class="result-url">${new URL(url).hostname}</a>
+                    </div>
+                    ${text ? `<div class="result-abstract">${text}</div>` : ''}
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
