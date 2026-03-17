@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌐 Network IP Detector - HTML Only</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #e2e8f0;
+        }
+
+        .app-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 48px;
+            max-width: 520px;
+            width: 100%;
+            box-shadow: 
+                0 25px 45px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #00d4aa, #00b894);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            box-shadow: 0 12px 30px rgba(0, 212, 170, 0.3);
+        }
+
+        .logo i {
+            font-size: 28px;
+            color: white;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff, #e2e8f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #94a3b8;
+            font-size: 16px;
+            font-weight: 400;
+        }
+
+        .main-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            margin-bottom: 32px;
+        }
+
+        .get-ip-btn, .send-request-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #00d4aa 0%, #00b894 100%);
+            color: white;
+            border: none;
+            padding: 20px 32px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 12px 30px rgba(0, 212, 170, 0.3);
+            margin-bottom: 24px;
+        }
+
+        .get-ip-btn:hover:not(:disabled), .send-request-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px rgba(0, 212, 170, 0.4);
+            background: linear-gradient(135deg, #00b894 0%, #00d4aa 100%);
+        }
+
+        .get-ip-btn:disabled, .send-request-btn:disabled {
+            background: #4a5568;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .get-ip-btn i, .send-request-btn i {
+            margin-right: 12px;
+        }
+
+        .input-group {
+            margin-bottom: 24px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #e2e8f0;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: #e2e8f0;
+            font-size: 16px;
+            font-family: 'Courier New', monospace;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #00d4aa;
+            box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.2);
+        }
+
+        .input-group input::placeholder {
+            color: #94a3b8;
+        }
+
+        #ipResult {
+            min-height: 80px;
+            padding: 24px;
+            border-radius: 16px;
+            font-size: 20px;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.4s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+        }
+
+        .result-loading {
+            background: rgba(0, 212, 170, 0.15);
+            border: 2px solid rgba(0, 212, 170, 0.3);
+            color: #00d4aa;
+            animation: pulse 1.5s infinite;
+        }
+
+        .result-success {
+            background: rgba(0, 212, 170, 0.2);
+            border: 2px solid rgba(0, 212, 170, 0.4);
+            color: #00d4aa;
+        }
+
+        .result-error {
+            background: rgba(239, 68, 68, 0.15);
+            border: 2px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+        }
+
+        .ip-address {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #00d4aa;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .status-icon {
+            font-size: 32px;
+        }
+
+        .footer {
+            text-align: center;
+            padding-top: 32px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        @media (max-width: 480px) {
+            .app-container {
+                padding: 32px 24px;
+                margin: 10px;
+            }
+            h1 { font-size: 26px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-network-wired"></i>
+            </div>
+            <h1>Network IP Detector</h1>
+            <p class="subtitle">Get your machine's public & local IP addresses</p>
+        </div>
+
+        <div class="main-card">
+            <button class="get-ip-btn" id="getIpBtn">
+                <i class="fas fa-search"></i>
+                Get My IP
+            </button>
+            
+            <div id="ipResult">
+                <i class="fas fa-info-circle"></i>
+                Click to detect your network IP addresses
+            </div>
+
+            <!-- New Sender IP Input Section -->
+            <div class="input-group">
+                <label for="senderIP">Enter Sender Public IP:</label>
+                <input 
+                    type="text" 
+                    id="senderIP" 
+                    placeholder="e.g., 192.168.1.100 or 8.8.8.8"
+                    value=""
+                >
+            </div>
+
+            <button class="send-request-btn" id="sendRequestBtn">
+                <i class="fas fa-paper-plane"></i>
+                Send Request to IP
+            </button>
+
+            <div id="requestResult" style="display: none; margin-top: 20px;">
+                <div style="font-size: 14px; opacity: 0.8; text-align: center;">
+                    Response: <span id="requestResponse">-</span>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <strong>ℹ️ Note:</strong> Browser security limits local IP detection. 
+                Requests sent to public IPs need a running web server (port 80) on target.
+            </div>
+        </div>
+
+        <div class="footer">
+            <i class="fas fa-shield-alt"></i> Professional Cybersecurity Tool
+        </div>
+    </div>
+
+    <script>
+        // Get Public IP (works in browser)
+        async function getPublicIP() {
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                return data.ip;
+            } catch {
+                return 'Unable to fetch';
+            }
+        }
+
+        // Get Local IP (limited by browser security)
+        function getLocalIPs() {
+            const ips = [];
+            const ipRegex = /(?:[0-9]{1,3}\\.){3}[0-9]{1,3}/;
+            
+            const rtc = new RTCPeerConnection({iceServers:[]});
+            rtc.createDataChannel('');
+            rtc.createOffer().then(offer => rtc.setLocalDescription(offer));
+            
+            rtc.onicecandidate = (event) => {
+                if (!event.candidate) return;
+                const candidate = event.candidate.candidate;
+                const ipMatch = ipRegex.exec(candidate);
+                if (ipMatch && !ips.includes(ipMatch[0])) {
+                    ips.push(ipMatch[0]);
+                }
+            };
+            
+            setTimeout(() => {
+                rtc.close();
+                if (ips.length > 0) {
+                    document.getElementById('localIps').textContent = ips.join(', ');
+                }
+            }, 1000);
+            
+            return ips;
+        }
+
+        // Send request to target IP
+        async function sendRequestToIP(targetIP) {
+            try {
+                // Basic HTTP GET request to target IP on port 80
+                const response = await fetch(`http://${targetIP}:80/`, {
+                    method: 'GET',
+                    mode: 'no-cors', // Required for cross-origin requests
+                    cache: 'no-cache'
+                });
+                
+                // Due to no-cors, we can't read response body
+                return 'Request sent successfully (port 80)';
+                
+            } catch (error) {
+                // Handle common errors
+                if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                    return `Connection failed - No web server on ${targetIP}:80`;
+                }
+                return `Error: ${error.message}`;
+            }
+        }
+
+        // Get IP button handler
+        document.getElementById('getIpBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('getIpBtn');
+            const result = document.getElementById('ipResult');
+            
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Detecting...';
+            btn.disabled = true;
+            result.innerHTML = '<i class="fas fa-cog fa-spin status-icon"></i>Scanning network...';
+            result.className = 'result-loading';
+            
+            try {
+                const publicIP = await getPublicIP();
+                getLocalIPs();
+                
+                setTimeout(() => {
+                    result.innerHTML = `
+                        <i class="fas fa-globe status-icon"></i>
+                        <div>Your Public IP</div>
+                        <div class="ip-address">${publicIP}</div>
+                        <div style="font-size: 14px; opacity: 0.8; margin-top: 8px;">
+                            Local IPs: <span id="localIps">-</span>
+                        </div>
+                    `;
+                    result.className = 'result-success';
+                }, 1200);
+                
+            } catch (error) {
+                result.innerHTML = `
+                    <i class="fas fa-times-circle status-icon"></i>
+                    <div>Network Detection Failed</div>
+                    <div>Check your connection</div>
+                `;
+                result.className = 'result-error';
+            } finally {
+                btn.innerHTML = '<i class="fas fa-search"></i> Get My IP';
+                btn.disabled = false;
+            }
+        });
+
+        // Send Request button handler
+        document.getElementById('sendRequestBtn').addEventListener('click', async () => {
+            const senderIPInput = document.getElementById('senderIP');
+            const sendBtn = document.getElementById('sendRequestBtn');
+            const requestResult = document.getElementById('requestResult');
+            const requestResponse = document.getElementById('requestResponse');
+            
+            const targetIP = senderIPInput.value.trim();
+            
+            if (!targetIP) {
+                requestResponse.textContent = 'Please enter a valid IP address';
+                requestResult.style.display = 'block';
+                return;
+            }
+            
+            // Validate IP format (basic)
+            const ipRegex = /^(\d{1,3}\.){3}\d{1,3}$/;
+            if (!ipRegex.test(targetIP)) {
+                requestResponse.textContent = 'Invalid IP format';
+                requestResult.style.display = 'block';
+                return;
+            }
+            
+            // Loading state
+            sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            sendBtn.disabled = true;
+            requestResult.style.display = 'block';
+            requestResponse.textContent = 'Connecting...';
+            
+            try {
+                const result = await sendRequestToIP(targetIP);
+                requestResponse.textContent = result;
+                
+                if (result.includes('successfully')) {
+                    requestResult.style.background = 'rgba(0, 212, 170, 0.15)';
+                } else {
+                    requestResult.style.background = 'rgba(239, 68, 68, 0.15)';
+                }
+            } catch (error) {
+                requestResponse.textContent = 'Request failed';
+                requestResult.style.background = 'rgba(239, 68, 68, 0.15)';
+            } finally {
+                sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Request to IP';
+                sendBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
