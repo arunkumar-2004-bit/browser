@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> GoFile Link and QR Code Generator </title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh; padding: 20px;
+        }
+        .container { 
+            max-width: 1000px; margin: 0 auto; 
+            background: white; border-radius: 25px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15); overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(45deg, #11998e, #38ef7d);
+            color: white; padding: 40px; text-align: center;
+        }
+        .upload-section { padding: 50px; text-align: center; border-bottom: 2px solid #f0f0f0; }
+        .file-drop {
+            border: 4px dashed #38ef7d; border-radius: 20px; padding: 60px 40px;
+            margin: 30px 0; background: #f8fff8; transition: all 0.3s ease;
+            cursor: pointer; position: relative;
+        }
+        .file-drop.dragover { 
+            border-color: #11998e; background: #e8f7e8; transform: scale(1.02); 
+        }
+        .file-input { position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+        .upload-icon { font-size: 80px; margin-bottom: 20px; }
+        .loading { display: none; color: #38ef7d; font-size: 18px; margin: 20px 0; }
+        .btn { 
+            background: linear-gradient(45deg, #11998e, #38ef7d); color: white;
+            border: none; padding: 12px 24px; border-radius: 25px; cursor: pointer;
+            margin: 5px; transition: all 0.3s; font-weight: bold;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(17,153,142,0.4); }
+        .btn.qr-btn { background: linear-gradient(45deg, #ff6b6b, #ff9a56); }
+        .btn.chrome-btn { background: linear-gradient(45deg, #4285f4, #34a853); }
+        .status { padding: 15px; margin: 10px 0; border-radius: 10px; font-weight: bold; }
+        .status.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .status.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .result-item { padding: 20px; margin: 15px 0; background: #f8f9fa; border-radius: 15px; }
+        .result-url { 
+            background: #e9ecef; padding: 12px; border-radius: 8px; font-family: monospace;
+            word-break: break-all; margin: 10px 0; font-size: 14px;
+        }
+        .qr-container { text-align: center; margin: 15px 0; }
+        .qr-code { 
+            border: 3px solid #38ef7d; border-radius: 15px; padding: 10px; 
+            background: white; margin: 10px auto; display: inline-block;
+        }
+        .copy-all { background: linear-gradient(45deg, #ff9a56, #ff6b6b) !important; }
+        .btn-row { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>  ௐ Using GoFile Public Access Link and QR Code Generator ௐ</h1>
+            <p><strong> Browse or Drag & Drop</strong></p>
+        </div>
+        
+        <div class="upload-section">
+            <div class="file-drop" id="fileDrop">
+                <input type="file" id="fileInput" class="file-input" multiple>
+                <div class="upload-icon">📁</div>
+                <p style="font-size: 22px; color: #11998e;">Browse or Drag & Drop Files </p>
+                <p style="color: #666;">It will Generate GoFile Link and QR Code to access the file Globally </p>
+            </div>
+            
+            <div id="loading" class="loading">🚀 Uploading to GoFile...</div>
+            <div id="status"></div>
+            <div id="results"></div>
+        </div>
+    </div>
+
+    <script>
+        let uploadedFiles = [];
+        let qrCodes = {};
+
+        // Drag & drop setup
+        const drop = document.getElementById('fileDrop');
+        const input = document.getElementById('fileInput');
+
+        drop.addEventListener('click', () => input.click());
+        input.addEventListener('change', e => handleFiles(e.target.files));
+
+        ['dragenter', 'dragover'].forEach(event => {
+            drop.addEventListener(event, e => {
+                e.preventDefault(); e.stopPropagation();
+                drop.classList.add('dragover');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(event => {
+            drop.addEventListener(event, e => {
+                e.preventDefault(); e.stopPropagation();
+                drop.classList.remove('dragover');
+            });
+        });
+
+        drop.addEventListener('drop', e => {
+            e.preventDefault(); e.stopPropagation();
+            handleFiles(e.dataTransfer.files);
+        });
+
+        async function handleFiles(files) {
+            showLoading(true);
+            uploadedFiles = [];
+            
+            for (let file of Array.from(files)) {
+                try {
+                    const result = await uploadToGoFile(file);
+                    uploadedFiles.push(result);
+                } catch (error) {
+                    showStatus(`❌ ${file.name}: ${error.message}`, 'error');
+                }
+            }
+            
+            displayResults();
+            showLoading(false);
+        }
+
+        async function uploadToGoFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            const response = await fetch('https://store1.gofile.io/uploadFile', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            if (data.status === 'ok') {
+                return {
+                    name: file.name,
+                    size: formatBytes(file.size),
+                    url: data.data.directLink || data.data.downloadPage,
+                    service: 'GoFile (100GB+)'
+                };
+            }
+            throw new Error('Upload failed');
+        }
+
+        function displayResults() {
+            const results = document.getElementById('results');
+            let html = '<h3>📋 Your Files + QR Codes:</h3>';
+            
+            uploadedFiles.forEach((file, index) => {
+                html += `
+                    <div class="result-item">
+                        <strong>📄 ${file.name}</strong> 
+                        <span style="float: right; color: #666;">${file.size}</span><br>
+                        <span style="color: #11998e; font-weight: bold;">${file.service}</span>
+                        <div class="result-url">${file.url}</div>
+                        
+                        <div class="qr-container">
+                            <button class="btn qr-btn" onclick="toggleQR(${index})">
+                                📱 ${qrCodes[index] ? 'Hide' : 'Show'} QR Code
+                            </button>
+                            <div id="qr-${index}" class="qr-code" style="display: none; width: 200px; height: 200px;"></div>
+                        </div>
+                        
+                        <div class="btn-row">
+                            <button class="btn" onclick="copySingle(${index})">📋 Copy Link</button>
+                            <button class="btn chrome-btn" onclick="openChrome('${file.url.replace(/'/g, "\\\\'")}')">🌐 Chrome</button>
+                            <button class="btn" onclick="openLink('${file.url.replace(/'/g, "\\\\'")}')">🔗 Open</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            if (uploadedFiles.length > 0) {
+                html += `
+                    <div style="text-align: center; margin: 30px 0; padding: 20px; background: #f8f9fa; border-radius: 15px;">
+                        <button class="btn copy-all" onclick="copyAll()" style="font-size: 16px; padding: 15px 30px;">
+                            📤 Copy All ${uploadedFiles.length} Links
+                        </button>
+                    </div>
+                `;
+            }
+            
+            results.innerHTML = html;
+        }
+
+        function toggleQR(index) {
+            const qrDiv = document.getElementById(`qr-${index}`);
+            
+            if (qrCodes[index]) {
+                qrDiv.style.display = 'none';
+                qrCodes[index] = false;
+            } else {
+                qrDiv.style.display = 'inline-block';
+                qrDiv.innerHTML = '';
+                try {
+                    new QRCode(qrDiv, {
+                        text: uploadedFiles[index].url,
+                        width: 200,
+                        height: 200,
+                        colorDark: "#000000",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+                    qrCodes[index] = true;
+                } catch (error) {
+                    qrDiv.innerHTML = '❌ QR Error';
+                }
+            }
+        }
+
+        function copySingle(index) {
+            navigator.clipboard.writeText(uploadedFiles[index].url).then(() => {
+                showToast('✅ Link copied!');
+            });
+        }
+
+        function copyAll() {
+            const text = uploadedFiles.map(f => `${f.name}\\n${f.url}\\n`).join('\\n');
+            navigator.clipboard.writeText(text).then(() => {
+                showToast(`✅ ${uploadedFiles.length} links copied!`);
+            });
+        }
+
+        function openLink(url) {
+            window.open(url, '_blank');
+        }
+
+        // NEW: Open in Chrome specifically
+        function openChrome(url) {
+            // Try Chrome-specific protocol first
+            window.open('googlechrome://' + url, '_blank');
+            
+            // Fallback to regular tab if Chrome protocol fails
+            setTimeout(() => {
+                window.open(url, '_blank');
+            }, 500);
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.innerHTML = message;
+            status.className = `status ${type}`;
+            setTimeout(() => {
+                status.innerHTML = '';
+                status.className = 'status';
+            }, 5000);
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed; top: 20px; right: 20px; z-index: 10000;
+                background: linear-gradient(45deg, #11998e, #38ef7d); color: white;
+                padding: 15px 25px; border-radius: 25px; font-weight: bold;
+                box-shadow: 0 10px 25px rgba(17,153,142,0.4);
+                transform: scale(0); animation: popIn 0.5s ease forwards;
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        const style = document.createElement('style');
+        style.textContent = `@keyframes popIn { to { transform: scale(1); } }`;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
