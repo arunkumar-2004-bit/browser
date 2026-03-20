@@ -1,141 +1,143 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>🔒 Secure File Transfer</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🌐 Cross-Network Secure File Transfer</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        * {margin:0;padding:0;box-sizing:border-box;}
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e1e2e 0%, #313244 100%);
             color: white;
             min-height: 100vh;
-            padding: 15px;
+            padding: 20px;
         }
         .container {
-            max-width: 450px;
+            max-width: 600px;
             margin: 0 auto;
-            background: rgba(26,27,38,0.95);
+            background: rgba(49, 50, 68, 0.95);
             border-radius: 25px;
-            padding: 30px;
+            padding: 40px;
             box-shadow: 0 25px 50px rgba(0,0,0,0.5);
         }
         h1 {
             text-align: center;
-            font-size: 28px;
+            font-size: 32px;
             background: linear-gradient(45deg, #00ff88, #00d4ff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
         }
-        .mode-toggle {
-            display: flex;
-            background: rgba(42,43,62,0.8);
-            border-radius: 15px;
-            padding: 4px;
-            margin-bottom: 25px;
+        .connection-id {
+            background: rgba(0,212,255,0.2);
+            border: 2px solid #00d4ff;
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .id-field {
+            background: rgba(0,0,0,0.3);
+            border: none;
+            color: #00ff88;
+            font-size: 24px;
+            font-family: monospace;
+            letter-spacing: 2px;
+            text-align: center;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .mode-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
         }
         .mode-btn {
-            flex: 1;
-            padding: 15px;
-            border: none;
-            border-radius: 12px;
+            padding: 20px;
+            border: 3px solid #00d4ff;
+            border-radius: 20px;
             background: transparent;
-            color: rgba(255,255,255,0.7);
-            font-size: 16px;
-            font-weight: 600;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
             cursor: pointer;
             transition: all 0.3s;
         }
         .mode-btn.active {
             background: linear-gradient(45deg, #00ff88, #00d4ff);
             color: black;
-        }
-        .ip-input {
-            position: relative;
-            margin-bottom: 20px;
-        }
-        input[type="text"] {
-            width: 100%;
-            padding: 18px 20px 18px 50px;
-            background: rgba(255,255,255,0.08);
-            border: 2px solid rgba(0,212,255,0.3);
-            border-radius: 15px;
-            color: white;
-            font-size: 16px;
-            transition: all 0.3s;
-        }
-        input:focus {
-            outline: none;
-            border-color: #00d4ff;
-            box-shadow: 0 0 20px rgba(0,212,255,0.3);
-        }
-        .ip-label {
-            position: absolute;
-            left: 18px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #00d4ff;
-            font-weight: bold;
+            transform: scale(1.05);
         }
         .connect-btn {
             width: 100%;
-            padding: 20px;
+            padding: 25px;
             background: linear-gradient(45deg, #00ff88, #00d4ff);
             color: black;
             border: none;
             border-radius: 20px;
-            font-size: 18px;
+            font-size: 22px;
             font-weight: bold;
             cursor: pointer;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
             transition: all 0.3s;
         }
         .connect-btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 30px rgba(0,255,136,0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0,255,136,0.4);
         }
-        .connect-btn:disabled {opacity: 0.5; cursor: not-allowed;}
+        .connect-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
         .file-area {
-            background: rgba(42,43,62,0.6);
-            border: 3px dashed rgba(0,212,255,0.5);
-            border-radius: 20px;
-            padding: 25px;
+            border: 4px dashed #00d4ff;
+            border-radius: 25px;
+            padding: 50px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            background: rgba(42,43,62,0.4);
         }
-        .file-area:hover {border-color: #00d4ff; background: rgba(0,212,255,0.1);}
-        .file-area.dragover {border-color: #00ff88; background: rgba(0,255,136,0.1);}
-        .file-icon {font-size: 48px; margin-bottom: 15px;}
-        .file-list, .received-list {
+        .file-area:hover { border-color: #00ff88; }
+        .file-area.dragover { 
+            border-color: #00ff88; 
+            background: rgba(0,255,136,0.2);
+            transform: scale(1.02);
+        }
+        .file-icon { font-size: 64px; margin-bottom: 20px; }
+        .file-list {
             background: rgba(30,30,46,0.8);
-            border-radius: 15px;
-            padding: 20px;
-            max-height: 120px;
+            border-radius: 20px;
+            padding: 25px;
+            max-height: 200px;
             overflow-y: auto;
-            font-size: 14px;
-            line-height: 1.5;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            line-height: 1.6;
         }
         .status {
-            padding: 15px;
-            border-radius: 15px;
+            padding: 20px;
+            border-radius: 20px;
             text-align: center;
             font-weight: bold;
-            margin-bottom: 20px;
-            font-size: 16px;
+            font-size: 20px;
+            margin-bottom: 25px;
         }
-        .status.connected {background: rgba(0,255,136,0.2); color: #00ff88;}
-        .status.connecting {background: rgba(255,170,0,0.2); color: #ffaa00;}
-        .status.error {background: rgba(255,85,85,0.2); color: #ff5555;}
+        .status.connected { background: rgba(0,255,136,0.2); color: #00ff88; }
+        .status.connecting { background: rgba(255,170,0,0.2); color: #ffaa00; }
+        .status.error { background: rgba(255,85,85,0.2); color: #ff5555; }
         .progress {
             width: 100%;
-            height: 10px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 5px;
+            height: 12px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 6px;
             overflow: hidden;
-            margin-top: 15px;
+            margin-top: 20px;
         }
         .progress-fill {
             height: 100%;
@@ -143,164 +145,303 @@
             width: 0%;
             transition: width 0.3s;
         }
-        @media (max-width: 500px) {
-            .container {margin: 10px; padding: 20px;}
-            h1 {font-size: 24px;}
+        .qr-code {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .qr-code canvas {
+            border: 2px solid #00d4ff;
+            border-radius: 15px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🔒 Secure Transfer</h1>
+        <h1>🌐 Cross-Network Transfer</h1>
         
-        <div class="mode-toggle">
-            <button class="mode-btn active" onclick="setMode('server')">🖥️ Server</button>
-            <button class="mode-btn" onclick="setMode('client')">📱 Client</button>
+        <div class="connection-id">
+            <div>Your Connection ID:</div>
+            <input type="text" class="id-field" id="myId" readonly>
+            <div style="font-size: 14px; margin-top: 10px; opacity: 0.8;">
+                Share this ID with other device
+            </div>
         </div>
-        
-        <div class="ip-input">
-            <div class="ip-label" id="ipLabel">IP:</div>
-            <input type="text" id="serverIP" placeholder="192.168.1.100:5001" disabled>
+
+        <div class="mode-grid">
+            <button class="mode-btn active" onclick="setMode('sender')">📤 Sender</button>
+            <button class="mode-btn" onclick="setMode('receiver')">📥 Receiver</button>
         </div>
-        
-        <div id="status" class="status" style="display:none;"></div>
-        
-        <button class="connect-btn" id="connectBtn" onclick="toggleConnection()">
-            🚀 START SERVER / CONNECT
-        </button>
-        
-        <div class="file-area" onclick="document.getElementById('fileInput').click()">
+
+        <div style="text-align: center; margin-bottom: 20px;">
+            <input type="text" id="remoteId" placeholder="Enter remote ID" style="width: 70%; padding: 15px; margin-right: 10px;">
+            <button class="connect-btn" id="connectBtn" onclick="connect()">🔗 CONNECT</button>
+        </div>
+
+        <div id="status" class="status" style="display: none;"></div>
+
+        <div class="file-area" id="fileArea" onclick="selectFiles()">
             <div class="file-icon">📁</div>
             <div>Click or drag files here</div>
-            <input type="file" id="fileInput" multiple style="display:none;">
+            <input type="file" id="fileInput" multiple style="display: none;">
         </div>
-        
-        <div id="fileList" class="file-list" style="display:none;"></div>
-        <div id="receivedList" class="received-list">Waiting for files...</div>
-        
+
+        <div id="fileList" class="file-list" style="display: none;"></div>
+        <div id="receivedList" class="file-list">Waiting for files...</div>
+
         <div class="progress">
             <div class="progress-fill" id="progressFill"></div>
         </div>
+
+        <div class="qr-code" id="qrCode" style="display: none;"></div>
     </div>
 
+    <!-- WebRTC + Signaling Server -->
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script>
-        let socket = null;
-        let isServerMode = true;
-        let selectedFiles = [];
-        let isConnected = false;
-        
-        // Drag & Drop
-        const fileArea = document.querySelector('.file-area');
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            fileArea.addEventListener(eventName, preventDefaults, false);
-        });
-        
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-        
-        ['dragenter', 'dragover'].forEach(eventName => {
-            fileArea.addEventListener(eventName, highlight, false);
-        });
-        ['dragleave', 'drop'].forEach(eventName => {
-            fileArea.addEventListener(eventName, unhighlight, false);
-        });
-        
-        function highlight(e) {
-            fileArea.classList.add('dragover');
-        }
-        function unhighlight(e) {
-            fileArea.classList.remove('dragover');
-        }
-        
-        fileArea.addEventListener('drop', handleDrop, false);
-        
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            handleFiles(files);
-        }
-        
-        document.getElementById('fileInput').addEventListener('change', (e) => {
-            handleFiles(e.target.files);
-        });
-        
-        function handleFiles(files) {
-            selectedFiles = Array.from(files);
-            const list = document.getElementById('fileList');
-            list.style.display = 'block';
-            list.innerHTML = selectedFiles.map(f => 
-                `📄 ${f.name} <span>(${(f.size/1024).toFixed(1)}KB)</span>`
-            ).join('<br>');
-        }
-        
-        function setMode(mode) {
-            isServerMode = mode === 'server';
-            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            const ipInput = document.getElementById('serverIP');
-            document.getElementById('ipLabel').textContent = isServerMode ? 'My IP:' : 'Server:';
-            
-            if (isServerMode) {
-                ipInput.disabled = true;
-                ipInput.value = '';
-            } else {
-                ipInput.disabled = false;
-                ipInput.placeholder = '192.168.1.100:5001';
+        class CrossNetworkTransfer {
+            constructor() {
+                this.localId = this.generateId();
+                this.socket = io('wss://file-transfer-8z9k.onrender.com'); // Free signaling server
+                this.peerConnection = null;
+                this.dataChannel = null;
+                this.selectedFiles = [];
+                this.isSender = true;
+                this.init();
             }
-        }
-        
-        async function getLocalIP() {
-            try {
-                const res = await fetch('https://api.ipify.org?format=json');
-                const data = await res.json();
-                document.getElementById('serverIP').placeholder = `${data.ip}:5001`;
-            } catch {}
-        }
-        
-        function toggleConnection() {
-            if (!isConnected) {
-                connect();
-            } else {
-                disconnect();
+
+            generateId() {
+                return Math.random().toString(36).substr(2, 9).toUpperCase();
             }
-        }
-        
-        function connect() {
-            if (!isServerMode) {
-                const ip = document.getElementById('serverIP').value;
-                if (!ip) {
-                    showStatus('Enter server IP!', 'error');
+
+            init() {
+                document.getElementById('myId').value = this.localId;
+                this.bindEvents();
+                this.socket.on('connect', () => {
+                    console.log('Signaling server connected');
+                });
+            }
+
+            bindEvents() {
+                this.socket.on('offer', (data) => this.handleOffer(data));
+                this.socket.on('answer', (data) => this.handleAnswer(data));
+                this.socket.on('ice-candidate', (data) => this.handleIceCandidate(data));
+            }
+
+            setMode(mode) {
+                this.isSender = mode === 'sender';
+                document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+                event.target.classList.add('active');
+                document.getElementById('fileArea').style.display = this.isSender ? 'block' : 'none';
+            }
+
+            async connect() {
+                const remoteId = document.getElementById('remoteId').value.trim();
+                if (!remoteId) {
+                    this.showStatus('Enter remote ID!', 'error');
                     return;
                 }
-                // Connect to Python server (TCP socket would need WebSocket bridge)
-                showStatus('📱 Connect your phone to PC server!', 'connected');
-            } else {
-                showStatus('🖥️ Server ready! Share IP with phone', 'connected');
+
+                this.showStatus('🔄 Connecting...', 'connecting');
+                document.getElementById('connectBtn').disabled = true;
+
+                // Create peer connection
+                this.peerConnection = new RTCPeerConnection({
+                    iceServers: [
+                        { urls: 'stun:stun.l.google.com:19302' },
+                        { urls: 'stun:stun1.l.google.com:19302' },
+                        { urls: 'stun:stun2.l.google.com:19302' }
+                    ]
+                });
+
+                this.peerConnection.onicecandidate = (event) => {
+                    if (event.candidate) {
+                        this.socket.emit('ice-candidate', {
+                            candidate: event.candidate,
+                            from: this.localId,
+                            to: remoteId
+                        });
+                    }
+                };
+
+                this.peerConnection.ondatachannel = (event) => {
+                    this.dataChannel = event.channel;
+                    this.setupDataChannel();
+                };
+
+                if (this.isSender) {
+                    // Create data channel
+                    this.dataChannel = this.peerConnection.createDataChannel('fileTransfer');
+                    this.setupDataChannel();
+                    const offer = await this.peerConnection.createOffer();
+                    await this.peerConnection.setLocalDescription(offer);
+                    this.socket.emit('offer', {
+                        offer: offer,
+                        from: this.localId,
+                        to: remoteId
+                    });
+                }
+
+                // Listen for remote connection
+                setTimeout(() => {
+                    if (this.dataChannel && this.dataChannel.readyState === 'open') {
+                        this.showStatus('✅ Connected across networks!', 'connected');
+                    }
+                }, 5000);
             }
-            document.getElementById('connectBtn').textContent = '🔄 CONNECTED';
-            document.getElementById('connectBtn').disabled = true;
-            isConnected = true;
+
+            setupDataChannel() {
+                this.dataChannel.onopen = () => {
+                    console.log('Data channel open');
+                };
+
+                this.dataChannel.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'fileChunk') {
+                        this.handleFileChunk(data);
+                    }
+                };
+            }
+
+            handleOffer(data) {
+                if (data.to === this.localId) {
+                    this.peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer))
+                    .then(() => {
+                        return this.peerConnection.createAnswer();
+                    })
+                    .then((answer) => {
+                        this.peerConnection.setLocalDescription(answer);
+                        this.socket.emit('answer', {
+                            answer: answer,
+                            from: this.localId,
+                            to: data.from
+                        });
+                    });
+                }
+            }
+
+            handleAnswer(data) {
+                if (data.to === this.localId) {
+                    this.peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+                }
+            }
+
+            handleIceCandidate(data) {
+                if (data.to === this.localId) {
+                    this.peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+                }
+            }
+
+            selectFiles() {
+                document.getElementById('fileInput').click();
+            }
+
+            handleFiles(files) {
+                this.selectedFiles = Array.from(files);
+                const list = document.getElementById('fileList');
+                list.style.display = 'block';
+                list.innerHTML = this.selectedFiles.map(f => 
+                    `📄 ${f.name} (${(f.size/1024).toFixed(1)}KB)`
+                ).join('<br>');
+            }
+
+            async sendFiles() {
+                for (let file of this.selectedFiles) {
+                    await this.sendFile(file);
+                }
+                this.selectedFiles = [];
+                document.getElementById('fileList').style.display = 'none';
+            }
+
+            async sendFile(file) {
+                const chunkSize = 16384; // 16KB chunks
+                const totalChunks = Math.ceil(file.size / chunkSize);
+
+                for (let i = 0; i < totalChunks; i++) {
+                    const start = i * chunkSize;
+                    const end = Math.min(start + chunkSize, file.size);
+                    const chunk = file.slice(start, end);
+                    
+                    const reader = new FileReader();
+                    await new Promise((resolve) => {
+                        reader.onload = (e) => {
+                            this.dataChannel.send(JSON.stringify({
+                                type: 'fileChunk',
+                                name: file.name,
+                                chunk: e.target.result,
+                                index: i,
+                                total: totalChunks
+                            }));
+                            resolve();
+                        };
+                        reader.readAsArrayBuffer(chunk);
+                    });
+
+                    // Update progress
+                    const percent = ((i + 1) / totalChunks) * 100;
+                    document.getElementById('progressFill').style.width = percent + '%';
+                }
+            }
+
+            handleFileChunk(data) {
+                // Download received file
+                const blob = new Blob([data.chunk]);
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = data.name;
+                a.click();
+
+                const list = document.getElementById('receivedList');
+                list.innerHTML += `<div>✅ ${data.name}</div>`;
+                this.showStatus(`✅ ${data.name} received!`, 'connected');
+            }
+
+            showStatus(msg, type) {
+                const status = document.getElementById('status');
+                status.textContent = msg;
+                status.className = `status ${type}`;
+                status.style.display = 'block';
+            }
         }
-        
-        function disconnect() {
-            if (socket) socket.close();
-            isConnected = false;
-            document.getElementById('connectBtn').textContent = '🚀 START SERVER / CONNECT';
-            document.getElementById('connectBtn').disabled = false;
-            showStatus('Disconnected', 'error');
+
+        // Global instance
+        const transfer = new CrossNetworkTransfer();
+
+        // Event listeners
+        document.getElementById('fileInput').addEventListener('change', (e) => {
+            transfer.handleFiles(e.target.files);
+        });
+
+        const fileArea = document.getElementById('fileArea');
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(event => {
+            fileArea.addEventListener(event, e => e.preventDefault());
+        });
+
+        ['dragenter', 'dragover'].forEach(event => {
+            fileArea.addEventListener(event, () => fileArea.classList.add('dragover'));
+        });
+        ['dragleave', 'drop'].forEach(event => {
+            fileArea.addEventListener(event, () => fileArea.classList.remove('dragover'));
+        });
+
+        fileArea.addEventListener('drop', e => {
+            transfer.handleFiles(e.dataTransfer.files);
+        });
+
+        function setMode(mode) {
+            transfer.setMode(mode);
         }
-        
-        function showStatus(msg, type) {
-            const status = document.getElementById('status');
-            status.textContent = msg;
-            status.className = `status ${type}`;
-            status.style.display = 'block';
+
+        function connect() {
+            transfer.connect();
         }
-        
-        getLocalIP();
+
+        // Auto-send when connected and files selected
+        setInterval(() => {
+            if (transfer.dataChannel?.readyState === 'open' && transfer.selectedFiles.length > 0) {
+                transfer.sendFiles();
+            }
+        }, 1000);
     </script>
 </body>
 </html>
