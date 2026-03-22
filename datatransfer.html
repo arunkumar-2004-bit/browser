@@ -1,0 +1,651 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>SecureShare — Encrypted File Transfer</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#f7f6f3;--white:#ffffff;--navy:#1b2a4a;--navy2:#2d4170;
+  --blue:#2563eb;--blue-lt:#dbeafe;--blue-dk:#1d4ed8;
+  --green:#16a34a;--green-lt:#dcfce7;
+  --red:#dc2626;--red-lt:#fee2e2;
+  --amber:#d97706;--amber-lt:#fef3c7;
+  --txt:#111827;--txt2:#6b7280;--txt3:#9ca3af;
+  --border:#e5e7eb;--border2:#d1d5db;
+  --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;
+  --r:8px;
+  --sh:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.05);
+  --sh2:0 4px 16px rgba(0,0,0,.08),0 2px 8px rgba(0,0,0,.05);
+  --sh3:0 12px 32px rgba(0,0,0,.1),0 4px 12px rgba(0,0,0,.06);
+}
+html,body{min-height:100%;background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:15px;line-height:1.6}
+
+/* ── Layout ── */
+.page{max-width:680px;margin:0 auto;padding:32px 16px 64px}
+
+/* ── Header ── */
+.header{text-align:center;margin-bottom:40px}
+.header-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--navy);color:#fff;padding:6px 16px;
+  border-radius:100px;font-family:var(--mono);font-size:11px;
+  font-weight:600;letter-spacing:2px;margin-bottom:16px
+}
+.header-badge .dot{width:7px;height:7px;border-radius:50%;background:#6ee7b7}
+.header h1{font-size:28px;font-weight:600;color:var(--navy);letter-spacing:-0.5px;margin-bottom:6px}
+.header p{font-size:14px;color:var(--txt2);max-width:420px;margin:0 auto}
+
+/* ── Cards ── */
+.card{background:var(--white);border:1px solid var(--border);border-radius:12px;box-shadow:var(--sh2);overflow:hidden;margin-bottom:20px}
+.card-head{
+  display:flex;align-items:center;gap:12px;padding:18px 22px;
+  border-bottom:1px solid var(--border);background:var(--bg)
+}
+.card-head-icon{
+  width:38px;height:38px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0
+}
+.icon-blue{background:var(--blue-lt)}
+.icon-green{background:var(--green-lt)}
+.card-head h2{font-size:16px;font-weight:600;color:var(--navy)}
+.card-head p{font-size:12px;color:var(--txt2);margin-top:1px}
+.card-body{padding:22px}
+
+/* ── Form elements ── */
+.field{margin-bottom:16px}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--txt2);letter-spacing:.4px;text-transform:uppercase;margin-bottom:6px}
+.field input,.field textarea{
+  display:block;width:100%;padding:10px 13px;
+  font-family:var(--mono);font-size:13px;color:var(--txt);
+  background:var(--white);border:1.5px solid var(--border2);
+  border-radius:var(--r);outline:none;transition:border-color .2s,box-shadow .2s;
+  -webkit-appearance:none
+}
+.field input:focus,.field textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.field input::placeholder,.field textarea::placeholder{color:var(--txt3)}
+.field textarea{resize:vertical;min-height:60px}
+
+/* ── Drop zone ── */
+.drop-zone{
+  border:2px dashed var(--border2);border-radius:var(--r);
+  padding:28px 20px;text-align:center;cursor:pointer;
+  transition:all .2s;background:var(--bg);position:relative
+}
+.drop-zone input[type=file]{
+  position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%
+}
+.drop-zone:hover,.drop-zone.over{border-color:var(--blue);background:var(--blue-lt)}
+.drop-zone.has-file{border-color:var(--green);background:var(--green-lt);border-style:solid}
+.dz-icon{font-size:32px;margin-bottom:8px;display:block}
+.dz-title{font-weight:600;font-size:14px;color:var(--navy);margin-bottom:3px}
+.dz-sub{font-size:12px;color:var(--txt2)}
+
+/* ── File info ── */
+.file-info{
+  display:none;background:var(--bg);border:1px solid var(--border);
+  border-radius:var(--r);padding:12px 14px;margin-top:12px
+}
+.file-info.show{display:block}
+.fi-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:12px}
+.fi-row:last-child{border-bottom:none}
+.fi-row span:first-child{color:var(--txt2)}
+.fi-row span:last-child{font-family:var(--mono);font-weight:600;color:var(--navy)}
+
+/* ── Progress ── */
+.progress-wrap{height:6px;background:var(--bg);border-radius:3px;overflow:hidden;margin:10px 0}
+.progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--blue),var(--navy2));transition:width .3s;width:0%}
+.progress-label{font-family:var(--mono);font-size:11px;color:var(--txt2);text-align:center;margin-top:4px}
+
+/* ── Buttons ── */
+.btn{
+  display:block;width:100%;padding:12px 20px;font-family:var(--mono);
+  font-size:13px;font-weight:600;letter-spacing:1px;text-align:center;
+  border-radius:var(--r);cursor:pointer;transition:all .2s;border:none
+}
+.btn-primary{background:var(--navy);color:#fff}
+.btn-primary:hover:not(:disabled){background:var(--navy2);transform:translateY(-1px);box-shadow:var(--sh2)}
+.btn-primary:active:not(:disabled){transform:scale(.99)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed}
+.btn-green{background:var(--green);color:#fff}
+.btn-green:hover:not(:disabled){background:#15803d;transform:translateY(-1px)}
+.btn-green:disabled{opacity:.4;cursor:not-allowed}
+
+/* ── Result box ── */
+.result-box{
+  display:none;margin-top:16px;padding:16px;
+  border-radius:var(--r);border:1.5px solid
+}
+.result-box.show{display:block}
+.result-box.success{background:var(--green-lt);border-color:#86efac}
+.result-box.error{background:var(--red-lt);border-color:#fca5a5}
+.result-title{font-weight:600;font-size:13px;margin-bottom:8px}
+.result-box.success .result-title{color:#166534}
+.result-box.error   .result-title{color:#991b1b}
+.link-row{display:flex;gap:8px;margin-top:8px;align-items:center}
+.link-display{
+  flex:1;font-family:var(--mono);font-size:11px;color:var(--navy);
+  background:var(--white);border:1px solid var(--border2);
+  border-radius:6px;padding:8px 10px;word-break:break-all;line-height:1.5
+}
+.copy-btn{
+  flex-shrink:0;padding:8px 14px;font-family:var(--mono);font-size:11px;
+  font-weight:600;background:var(--navy);color:#fff;border:none;
+  border-radius:6px;cursor:pointer;transition:background .2s;white-space:nowrap
+}
+.copy-btn:hover{background:var(--navy2)}
+.copy-btn.copied{background:var(--green)}
+
+.hash-row{font-family:var(--mono);font-size:11px;color:#166534;margin-top:6px;word-break:break-all}
+
+/* ── Receive result ── */
+.recv-success{
+  display:none;text-align:center;padding:20px;
+  background:var(--green-lt);border:1.5px solid #86efac;border-radius:var(--r);margin-top:16px
+}
+.recv-success.show{display:block}
+.recv-icon{font-size:40px;margin-bottom:8px}
+.recv-filename{font-family:var(--mono);font-size:15px;font-weight:600;color:var(--navy);margin-bottom:4px}
+.recv-meta{font-size:12px;color:var(--txt2);margin-bottom:14px}
+.recv-hash{font-family:var(--mono);font-size:10px;color:var(--green);word-break:break-all;margin-bottom:14px}
+.download-btn{
+  display:inline-block;padding:10px 24px;background:var(--navy);color:#fff;
+  font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:1px;
+  border-radius:var(--r);text-decoration:none;cursor:pointer;
+  transition:background .2s;border:none
+}
+.download-btn:hover{background:var(--navy2)}
+
+/* ── How it works ── */
+.how-card{background:var(--navy);border-radius:12px;padding:24px;margin-bottom:20px;color:#fff}
+.how-card h3{font-size:14px;font-weight:600;letter-spacing:2px;margin-bottom:16px;color:#93c5fd;font-family:var(--mono)}
+.how-steps{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.how-step{background:rgba(255,255,255,.07);border-radius:8px;padding:12px}
+.how-step-num{font-family:var(--mono);font-size:11px;color:#93c5fd;margin-bottom:4px}
+.how-step-title{font-size:13px;font-weight:600;margin-bottom:3px}
+.how-step-desc{font-size:11px;color:rgba(255,255,255,.6);line-height:1.6}
+.how-divider{
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:11px;color:rgba(255,255,255,.4);
+  gap:8px;margin:4px 0
+}
+.how-divider::before,.how-divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.1)}
+
+/* ── Security note ── */
+.security-note{
+  background:var(--amber-lt);border:1px solid #fcd34d;border-radius:var(--r);
+  padding:12px 16px;font-size:12px;color:#92400e;line-height:1.7;margin-bottom:20px
+}
+.security-note strong{display:block;margin-bottom:3px;font-weight:600}
+
+/* ── Toast ── */
+#toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(70px);
+  background:var(--navy);color:#fff;font-family:var(--mono);font-size:12px;
+  padding:10px 20px;border-radius:8px;box-shadow:var(--sh3);
+  transition:transform .3s;z-index:999;white-space:nowrap
+}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#toast.ok{background:var(--green)}
+#toast.err{background:var(--red)}
+
+@media(max-width:500px){
+  .how-steps{grid-template-columns:1fr}
+  .page{padding:20px 12px 48px}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-badge"><span class="dot"></span>AES-256 ENCRYPTED</div>
+    <h1>SecureShare</h1>
+    <p>Encrypt a file on your device, upload to GoFile, share the link. Receiver decrypts with the same password.</p>
+  </div>
+
+  <!-- How it works -->
+  <div class="how-card">
+    <h3>HOW IT WORKS</h3>
+    <div class="how-steps">
+      <div class="how-step">
+        <div class="how-step-num">SENDER</div>
+        <div class="how-step-title">1. Select file + password</div>
+        <div class="how-step-desc">File is encrypted locally in your browser using AES-256-CBC before any upload</div>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num">SENDER</div>
+        <div class="how-step-title">2. Upload to GoFile</div>
+        <div class="how-step-desc">Encrypted file goes to GoFile.io — they only see random bytes, never your real file</div>
+      </div>
+    </div>
+    <div class="how-divider">share link + password with receiver</div>
+    <div class="how-steps">
+      <div class="how-step">
+        <div class="how-step-num">RECEIVER</div>
+        <div class="how-step-title">3. Paste link + password</div>
+        <div class="how-step-desc">Paste the GoFile link and the shared password in the receive section below</div>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num">RECEIVER</div>
+        <div class="how-step-title">4. Decrypt + verify</div>
+        <div class="how-step-desc">File decrypted in browser, SHA-256 hash verified, then downloaded to your device</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Security note -->
+  <div class="security-note">
+    <strong>🔒 Important — share password securely</strong>
+    The password never leaves your device. Share it with the receiver via a different channel (WhatsApp, phone call, SMS) — not the same link you share for the file.
+  </div>
+
+  <!-- ── SEND CARD ── -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-head-icon icon-blue">📤</div>
+      <div>
+        <h2>Send a File</h2>
+        <p>Encrypt locally → upload to GoFile → share link</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <!-- Drop zone -->
+      <div class="drop-zone" id="dropZone">
+        <input type="file" id="fileInput" onchange="onFileSelected(this.files[0])"/>
+        <span class="dz-icon">📁</span>
+        <div class="dz-title">Drop file here or click to browse</div>
+        <div class="dz-sub">Any file type · Encrypted before upload</div>
+      </div>
+
+      <!-- File info -->
+      <div class="file-info" id="fileInfo">
+        <div class="fi-row"><span>File name</span><span id="fi-name">—</span></div>
+        <div class="fi-row"><span>File size</span><span id="fi-size">—</span></div>
+        <div class="fi-row"><span>SHA-256</span><span id="fi-hash">—</span></div>
+      </div>
+
+      <!-- Password -->
+      <div class="field" style="margin-top:16px">
+        <label for="sendPass">Encryption password</label>
+        <input type="password" id="sendPass" placeholder="Enter a strong password…" autocomplete="new-password"/>
+      </div>
+
+      <!-- Progress -->
+      <div id="sendProgressWrap" style="display:none">
+        <div class="progress-wrap"><div class="progress-fill" id="sendProgress"></div></div>
+        <div class="progress-label" id="sendProgressLabel">Encrypting…</div>
+      </div>
+
+      <button class="btn btn-primary" id="sendBtn" onclick="doSend()" disabled style="margin-top:16px">
+        🔒 Encrypt &amp; Upload to GoFile
+      </button>
+
+      <!-- Result -->
+      <div class="result-box" id="sendResult">
+        <div class="result-title">✅ File uploaded successfully!</div>
+        <div style="font-size:12px;color:#166534;margin-bottom:8px">Share this link with the receiver. Also share your password through a separate channel.</div>
+        <div class="link-row">
+          <div class="link-display" id="resultLink">—</div>
+          <button class="copy-btn" id="copyBtn" onclick="copyLink()">Copy</button>
+        </div>
+        <div class="hash-row" id="sendHashRow"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RECEIVE CARD ── -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-head-icon icon-green">📥</div>
+      <div>
+        <h2>Receive a File</h2>
+        <p>Paste link → decrypt in browser → download</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="field">
+        <label for="recvLink">GoFile link from sender</label>
+        <input type="text" id="recvLink" placeholder="https://gofile.io/d/XXXXXX" autocomplete="off" spellcheck="false"/>
+      </div>
+      <div class="field">
+        <label for="recvPass">Decryption password</label>
+        <input type="password" id="recvPass" placeholder="Same password as sender…"/>
+      </div>
+
+      <div id="recvProgressWrap" style="display:none">
+        <div class="progress-wrap"><div class="progress-fill" id="recvProgress"></div></div>
+        <div class="progress-label" id="recvProgressLabel">Downloading…</div>
+      </div>
+
+      <button class="btn btn-green" id="recvBtn" onclick="doReceive()" style="margin-top:4px">
+        🔓 Download &amp; Decrypt
+      </button>
+
+      <!-- Receive success -->
+      <div class="recv-success" id="recvSuccess">
+        <div class="recv-icon">✅</div>
+        <div class="recv-filename" id="recvFileName">—</div>
+        <div class="recv-meta" id="recvMeta">—</div>
+        <div class="recv-hash" id="recvHash">—</div>
+        <button class="download-btn" id="recvDownloadBtn">⬇ Save File</button>
+      </div>
+
+      <div class="result-box error" id="recvError">
+        <div class="result-title" id="recvErrorMsg">Error</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  SecureShare — Browser-side AES-256 + GoFile
+// ═══════════════════════════════════════════════
+
+let selectedFile = null;
+let selectedFileHash = '';
+let decryptedBlob = null;
+let decryptedName = '';
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function fmt(b){ return b<1024?b+'B':b<1048576?(b/1024).toFixed(1)+'KB':(b/1048576).toFixed(2)+'MB'; }
+
+function toast(msg, cls=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='show'+(cls?' '+cls:'');
+  clearTimeout(t._t); t._t=setTimeout(()=>t.className='',3000);
+}
+
+async function sha256hex(data){
+  const buf=await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(buf)).map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+
+function setProg(id, pct, label){
+  document.getElementById(id).style.width=pct+'%';
+  if(label) document.getElementById(id+'Label').textContent=label;
+}
+
+// ── Password → AES-256 key (PBKDF2 same as Python) ───────────────────────────
+async function deriveKey(password, salt){
+  const enc   = new TextEncoder();
+  const raw   = enc.encode(password);
+  const base  = await crypto.subtle.importKey('raw', raw, 'PBKDF2', false, ['deriveKey']);
+  return await crypto.subtle.deriveKey(
+    {name:'PBKDF2', salt, iterations:100000, hash:'SHA-256'},
+    base,
+    {name:'AES-CBC', length:256},
+    false, ['encrypt','decrypt']
+  );
+}
+
+// ── Encrypt (salt[16] + iv[16] + ciphertext) ─────────────────────────────────
+async function encryptData(data, password){
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv   = crypto.getRandomValues(new Uint8Array(16));
+  const key  = await deriveKey(password, salt);
+  const ct   = await crypto.subtle.encrypt({name:'AES-CBC', iv}, key, data);
+  const out  = new Uint8Array(32 + ct.byteLength);
+  out.set(salt, 0); out.set(iv, 16); out.set(new Uint8Array(ct), 32);
+  return out.buffer;
+}
+
+// ── Decrypt ───────────────────────────────────────────────────────────────────
+async function decryptData(data, password){
+  const arr  = new Uint8Array(data);
+  const salt = arr.slice(0, 16);
+  const iv   = arr.slice(16, 32);
+  const ct   = arr.slice(32);
+  const key  = await deriveKey(password, salt);
+  return await crypto.subtle.decrypt({name:'AES-CBC', iv}, key, ct);
+}
+
+// ── Encode metadata header (mirrors Python script) ───────────────────────────
+function buildPayload(originalName, sha256, encryptedBytes){
+  const meta     = JSON.stringify({original_name:originalName, sha256, size:encryptedBytes.byteLength});
+  const metaEnc  = new TextEncoder().encode(meta);
+  const metaLen  = new Uint8Array(4);
+  new DataView(metaLen.buffer).setUint32(0, metaEnc.byteLength, false);
+  const total = new Uint8Array(4 + metaEnc.byteLength + encryptedBytes.byteLength);
+  total.set(metaLen, 0);
+  total.set(metaEnc, 4);
+  total.set(new Uint8Array(encryptedBytes), 4 + metaEnc.byteLength);
+  return total.buffer;
+}
+
+function parsePayload(data){
+  const arr    = new Uint8Array(data);
+  const metaLen= new DataView(data).getUint32(0, false);
+  const meta   = JSON.parse(new TextDecoder().decode(arr.slice(4, 4+metaLen)));
+  const enc    = arr.slice(4+metaLen).buffer;
+  return {meta, enc};
+}
+
+// ── File selected ─────────────────────────────────────────────────────────────
+async function onFileSelected(file){
+  if(!file) return;
+  selectedFile = file;
+  const dz = document.getElementById('dropZone');
+  dz.classList.add('has-file');
+  dz.querySelector('.dz-title').textContent = file.name;
+  dz.querySelector('.dz-sub').textContent   = fmt(file.size);
+
+  const buf  = await file.arrayBuffer();
+  selectedFileHash = await sha256hex(buf);
+
+  document.getElementById('fi-name').textContent = file.name.length>28?file.name.slice(0,26)+'…':file.name;
+  document.getElementById('fi-size').textContent = fmt(file.size);
+  document.getElementById('fi-hash').textContent = selectedFileHash.slice(0,16)+'…';
+  document.getElementById('fileInfo').classList.add('show');
+  document.getElementById('sendBtn').disabled = false;
+}
+
+// Drop events
+const dz = document.getElementById('dropZone');
+dz.addEventListener('dragover',  e=>{e.preventDefault();dz.classList.add('over');});
+dz.addEventListener('dragleave', ()=>dz.classList.remove('over'));
+dz.addEventListener('drop', e=>{
+  e.preventDefault(); dz.classList.remove('over');
+  if(e.dataTransfer.files[0]) onFileSelected(e.dataTransfer.files[0]);
+});
+
+// ── SEND ──────────────────────────────────────────────────────────────────────
+async function doSend(){
+  if(!selectedFile){ toast('Select a file first','err'); return; }
+  const pass = document.getElementById('sendPass').value.trim();
+  if(!pass){ toast('Enter a password','err'); return; }
+
+  document.getElementById('sendBtn').disabled = true;
+  document.getElementById('sendResult').classList.remove('show');
+  document.getElementById('sendProgressWrap').style.display='block';
+
+  try {
+    // 1. Read file
+    setProg('sendProgress', 10, 'Reading file…');
+    const raw = await selectedFile.arrayBuffer();
+
+    // 2. SHA-256 original
+    setProg('sendProgress', 20, 'Computing SHA-256…');
+    const origHash = await sha256hex(raw);
+
+    // 3. Encrypt
+    setProg('sendProgress', 35, 'Encrypting AES-256-CBC…');
+    const encrypted = await encryptData(raw, pass);
+
+    // 4. Build payload with metadata header
+    setProg('sendProgress', 50, 'Preparing payload…');
+    const payload  = buildPayload(selectedFile.name, origHash, encrypted);
+    const encName  = selectedFile.name + '.vl';
+    const blob     = new Blob([payload], {type:'application/octet-stream'});
+
+    // 5. Get GoFile upload server
+    setProg('sendProgress', 58, 'Getting upload server…');
+    const srvResp  = await fetch('https://api.gofile.io/servers');
+    const srvData  = await srvResp.json();
+    const server   = srvData.data.servers[0].name;
+
+    // 6. Upload to GoFile
+    setProg('sendProgress', 65, 'Uploading to GoFile…');
+    const form = new FormData();
+    form.append('file', blob, encName);
+    const upResp = await fetch(`https://${server}.gofile.io/uploadFile`, {method:'POST', body:form});
+    const upData = await upResp.json();
+
+    if(upData.status !== 'ok') throw new Error('GoFile upload failed: '+JSON.stringify(upData));
+
+    setProg('sendProgress', 100, 'Done!');
+
+    const shareLink = upData.data.downloadPage;
+
+    // Show result
+    const rb = document.getElementById('sendResult');
+    rb.className = 'result-box show success';
+    document.getElementById('resultLink').textContent   = shareLink;
+    document.getElementById('sendHashRow').textContent  = 'SHA-256: '+origHash;
+    toast('Uploaded successfully!','ok');
+
+  } catch(e){
+    const rb = document.getElementById('sendResult');
+    rb.className = 'result-box show error';
+    rb.querySelector('.result-title').textContent = '❌ '+e.message;
+    toast('Upload failed','err');
+  } finally {
+    document.getElementById('sendBtn').disabled = false;
+    setTimeout(()=>document.getElementById('sendProgressWrap').style.display='none', 1200);
+  }
+}
+
+function copyLink(){
+  const link = document.getElementById('resultLink').textContent;
+  navigator.clipboard.writeText(link).then(()=>{
+    const btn = document.getElementById('copyBtn');
+    btn.textContent='Copied!'; btn.classList.add('copied');
+    setTimeout(()=>{ btn.textContent='Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// ── RECEIVE ───────────────────────────────────────────────────────────────────
+async function doReceive(){
+  const link = document.getElementById('recvLink').value.trim();
+  const pass = document.getElementById('recvPass').value.trim();
+  if(!link){ toast('Paste the GoFile link','err'); return; }
+  if(!pass){ toast('Enter the decryption password','err'); return; }
+
+  document.getElementById('recvBtn').disabled    = true;
+  document.getElementById('recvSuccess').classList.remove('show');
+  document.getElementById('recvError').classList.remove('show');
+  document.getElementById('recvProgressWrap').style.display='block';
+
+  try {
+    // 1. Resolve GoFile link → direct download URL
+    setProg('recvProgress', 10, 'Resolving link…');
+    let directUrl='', fileName='', fileSize=0;
+
+    if(link.includes('gofile.io/d/')){
+      const contentId = link.split('/').pop();
+      // Use a CORS proxy since GoFile API blocks browser requests without token
+      const apiUrl = `https://api.gofile.io/getContent?contentId=${contentId}&token=&cache=true`;
+      let apiResp, apiData;
+      try {
+        apiResp = await fetch(apiUrl);
+        apiData = await apiResp.json();
+      } catch(e){
+        // If CORS blocked, try direct approach using allorigins proxy
+        const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(apiUrl)}`;
+        const pResp = await fetch(proxy);
+        const pData = await pResp.json();
+        apiData     = JSON.parse(pData.contents);
+      }
+      if(apiData.status !== 'ok') throw new Error('Could not resolve GoFile link.');
+      const contents = apiData.data.contents;
+      const first    = Object.values(contents)[0];
+      directUrl = first.link;
+      fileName  = first.name;
+      fileSize  = first.size || 0;
+    } else {
+      directUrl = link;
+      fileName  = link.split('/').pop() || 'file.vl';
+    }
+
+    // 2. Download
+    setProg('recvProgress', 25, 'Downloading encrypted file…');
+    const dlResp = await fetch(directUrl);
+    if(!dlResp.ok) throw new Error(`Download failed: HTTP ${dlResp.status}`);
+
+    const total = parseInt(dlResp.headers.get('content-length') || fileSize || 0);
+    const reader = dlResp.body.getReader();
+    const chunks = [];
+    let received = 0;
+    while(true){
+      const {done, value} = await reader.read();
+      if(done) break;
+      chunks.push(value); received += value.byteLength;
+      if(total) setProg('recvProgress', 25 + (received/total)*40, 'Downloading…');
+    }
+    const totalLen  = chunks.reduce((s,c)=>s+c.byteLength, 0);
+    const combined  = new Uint8Array(totalLen);
+    let offset=0; for(const c of chunks){ combined.set(c,offset); offset+=c.byteLength; }
+
+    // 3. Parse metadata
+    setProg('recvProgress', 70, 'Parsing metadata…');
+    const {meta, enc} = parsePayload(combined.buffer);
+
+    // 4. Decrypt
+    setProg('recvProgress', 80, 'Decrypting AES-256…');
+    let decrypted;
+    try {
+      decrypted = await decryptData(enc, pass);
+    } catch(e){
+      throw new Error('Decryption failed — wrong password?');
+    }
+
+    // 5. SHA-256 verify
+    setProg('recvProgress', 95, 'Verifying SHA-256…');
+    const calcHash = await sha256hex(decrypted);
+    if(calcHash !== meta.sha256){
+      throw new Error(`Integrity check FAILED.\nExpected: ${meta.sha256}\nGot:      ${calcHash}`);
+    }
+
+    setProg('recvProgress', 100, 'Done!');
+
+    // 6. Store blob for download
+    decryptedBlob = new Blob([decrypted]);
+    decryptedName = meta.original_name;
+
+    // Show success
+    document.getElementById('recvFileName').textContent = meta.original_name;
+    document.getElementById('recvMeta').textContent     = fmt(decrypted.byteLength)+' · SHA-256 verified';
+    document.getElementById('recvHash').textContent     = 'SHA-256: '+calcHash;
+    document.getElementById('recvSuccess').classList.add('show');
+    document.getElementById('recvDownloadBtn').onclick  = saveDecrypted;
+    toast('Decrypted and verified!','ok');
+
+  } catch(e){
+    const eb = document.getElementById('recvError');
+    eb.classList.add('show');
+    document.getElementById('recvErrorMsg').textContent = '❌ '+e.message;
+    toast('Failed','err');
+  } finally {
+    document.getElementById('recvBtn').disabled = false;
+    setTimeout(()=>document.getElementById('recvProgressWrap').style.display='none', 1200);
+  }
+}
+
+function saveDecrypted(){
+  if(!decryptedBlob) return;
+  const url = URL.createObjectURL(decryptedBlob);
+  const a   = document.createElement('a');
+  a.href    = url; a.download = decryptedName;
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(url), 5000);
+}
+</script>
+</body>
+</html>
