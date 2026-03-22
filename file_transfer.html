@@ -1,0 +1,1197 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>FileVault — Upload to GitHub</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ════════════════════════════════════════
+   FILEVAULT — Clean Light Upload UI
+════════════════════════════════════════ */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --bg:       #f0f2f5;
+  --white:    #ffffff;
+  --navy:     #0f172a;
+  --navy2:    #1e293b;
+  --blue:     #3b82f6;
+  --blue2:    #2563eb;
+  --blue-lt:  #eff6ff;
+  --green:    #22c55e;
+  --green-lt: #f0fdf4;
+  --red:      #ef4444;
+  --red-lt:   #fef2f2;
+  --amber:    #f59e0b;
+  --amber-lt: #fffbeb;
+  --txt:      #0f172a;
+  --txt2:     #64748b;
+  --txt3:     #94a3b8;
+  --border:   #e2e8f0;
+  --border2:  #cbd5e1;
+  --sans:     'Plus Jakarta Sans', sans-serif;
+  --mono:     'JetBrains Mono', monospace;
+  --r:        10px;
+  --sh:       0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --sh2:      0 4px 16px rgba(0,0,0,.08), 0 2px 4px rgba(0,0,0,.04);
+  --sh3:      0 20px 40px rgba(0,0,0,.1), 0 4px 12px rgba(0,0,0,.06);
+}
+
+html, body {
+  min-height: 100%;
+  background: var(--bg);
+  font-family: var(--sans);
+  color: var(--txt);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* ── Page layout ── */
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 40px 16px 80px;
+}
+
+/* ── Header ── */
+.header {
+  text-align: center;
+  margin-bottom: 36px;
+}
+.header-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--navy);
+  color: #fff;
+  padding: 8px 20px;
+  border-radius: 100px;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  margin-bottom: 18px;
+}
+.header-logo-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+}
+.header h1 {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--navy);
+  letter-spacing: -0.5px;
+  margin-bottom: 8px;
+}
+.header p {
+  font-size: 15px;
+  color: var(--txt2);
+  max-width: 440px;
+  margin: 0 auto;
+}
+
+/* ── Cards ── */
+.card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--sh2);
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+.card-icon {
+  width: 42px; height: 42px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0;
+}
+.ci-blue   { background: var(--blue-lt); }
+.ci-green  { background: var(--green-lt); }
+.ci-amber  { background: var(--amber-lt); }
+.card-header h2 { font-size: 16px; font-weight: 600; color: var(--navy); }
+.card-header p  { font-size: 12px; color: var(--txt2); margin-top: 1px; }
+.card-body { padding: 24px; }
+
+/* ── Config section ── */
+.config-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.field { margin-bottom: 14px; }
+.field:last-child { margin-bottom: 0; }
+.field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--txt2);
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.field input, .field select {
+  display: block;
+  width: 100%;
+  padding: 10px 13px;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--txt);
+  background: var(--white);
+  border: 1.5px solid var(--border2);
+  border-radius: var(--r);
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.field input:focus, .field select:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(59,130,246,.1);
+}
+.field input::placeholder { color: var(--txt3); }
+.field .hint {
+  font-size: 11px;
+  color: var(--txt3);
+  margin-top: 5px;
+  line-height: 1.5;
+}
+.field .hint a { color: var(--blue); text-decoration: none; }
+.field .hint a:hover { text-decoration: underline; }
+
+.save-btn {
+  padding: 9px 20px;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--white);
+  background: var(--navy);
+  border: none;
+  border-radius: var(--r);
+  cursor: pointer;
+  transition: background .2s;
+}
+.save-btn:hover { background: var(--navy2); }
+
+.config-saved {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--green);
+  font-family: var(--mono);
+  margin-top: 12px;
+}
+.config-saved.show { display: flex; }
+
+/* ── Drop zone ── */
+.drop-zone {
+  border: 2px dashed var(--border2);
+  border-radius: 14px;
+  padding: 40px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .25s;
+  background: var(--bg);
+  position: relative;
+  margin-bottom: 20px;
+}
+.drop-zone input[type=file] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+}
+.drop-zone:hover, .drop-zone.over {
+  border-color: var(--blue);
+  background: var(--blue-lt);
+}
+.drop-zone.has-files {
+  border-color: var(--green);
+  background: var(--green-lt);
+  border-style: solid;
+}
+.dz-icon { font-size: 44px; display: block; margin-bottom: 12px; }
+.dz-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 5px;
+}
+.dz-sub { font-size: 13px; color: var(--txt2); line-height: 1.6; }
+.dz-formats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  margin-top: 14px;
+}
+.dz-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 100px;
+  border: 1px solid var(--border2);
+  color: var(--txt2);
+  background: var(--white);
+}
+
+/* ── File queue ── */
+.file-queue { display: none; margin-bottom: 20px; }
+.file-queue.show { display: block; }
+.fq-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--txt2);
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.fq-clear {
+  font-size: 11px;
+  color: var(--red);
+  cursor: pointer;
+  font-weight: 500;
+  background: none;
+  border: none;
+  font-family: var(--sans);
+}
+.fq-clear:hover { text-decoration: underline; }
+.file-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 13px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  margin-bottom: 8px;
+  transition: all .2s;
+}
+.file-item:last-child { margin-bottom: 0; }
+.fi-icon {
+  width: 38px; height: 38px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.fi-info { flex: 1; min-width: 0; }
+.fi-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--navy);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fi-meta { font-size: 11px; color: var(--txt2); font-family: var(--mono); margin-top: 1px; }
+.fi-status {
+  font-size: 11px;
+  font-family: var(--mono);
+  font-weight: 500;
+  flex-shrink: 0;
+}
+.fi-status.waiting  { color: var(--txt3); }
+.fi-status.uploading{ color: var(--blue); }
+.fi-status.done     { color: var(--green); }
+.fi-status.error    { color: var(--red); }
+
+.fi-prog {
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 5px;
+}
+.fi-prog-fill {
+  height: 100%;
+  background: var(--blue);
+  border-radius: 2px;
+  transition: width .3s;
+  width: 0%;
+}
+.fi-remove {
+  width: 24px; height: 24px;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  color: var(--txt3);
+  font-size: 14px;
+  background: none;
+  border: none;
+  transition: all .2s;
+  flex-shrink: 0;
+}
+.fi-remove:hover { background: var(--red-lt); color: var(--red); }
+
+/* ── Folder path ── */
+.folder-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.folder-row label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--txt2);
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.folder-row input {
+  flex: 1;
+  padding: 9px 12px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--txt);
+  background: var(--white);
+  border: 1.5px solid var(--border2);
+  border-radius: var(--r);
+  outline: none;
+  transition: border-color .2s;
+}
+.folder-row input:focus { border-color: var(--blue); }
+.folder-row input::placeholder { color: var(--txt3); }
+
+/* ── Upload button ── */
+.upload-btn {
+  width: 100%;
+  padding: 14px;
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, var(--blue), var(--blue2));
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all .25s;
+  letter-spacing: .3px;
+  box-shadow: 0 4px 14px rgba(59,130,246,.35);
+}
+.upload-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(59,130,246,.4);
+}
+.upload-btn:active:not(:disabled) { transform: scale(.99); }
+.upload-btn:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* ── Overall progress ── */
+.overall-prog {
+  display: none;
+  margin-top: 16px;
+}
+.overall-prog.show { display: block; }
+.op-bar {
+  height: 8px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+.op-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--blue), var(--green));
+  border-radius: 4px;
+  transition: width .4s;
+  width: 0%;
+}
+.op-label {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--txt2);
+  text-align: center;
+}
+
+/* ── Results ── */
+.results { display: none; margin-top: 20px; }
+.results.show { display: block; }
+.results-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--navy);
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.result-item {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  transition: box-shadow .2s;
+}
+.result-item:hover { box-shadow: var(--sh2); }
+.result-item:last-child { margin-bottom: 0; }
+.ri-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.ri-icon {
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0;
+  background: var(--green-lt);
+}
+.ri-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--navy);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ri-size {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--txt2);
+  flex-shrink: 0;
+}
+.ri-links { display: flex; flex-direction: column; gap: 7px; }
+.link-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.link-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--txt2);
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  width: 52px;
+}
+.link-val {
+  flex: 1;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--navy2);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: text;
+}
+.link-actions { display: flex; gap: 5px; flex-shrink: 0; }
+.action-btn {
+  padding: 5px 10px;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid;
+  transition: all .2s;
+  white-space: nowrap;
+}
+.btn-copy {
+  background: var(--blue-lt);
+  border-color: #bfdbfe;
+  color: var(--blue2);
+}
+.btn-copy:hover { background: var(--blue); color: #fff; border-color: var(--blue); }
+.btn-copy.copied { background: var(--green); color: #fff; border-color: var(--green); }
+.btn-open {
+  background: var(--bg);
+  border-color: var(--border2);
+  color: var(--txt2);
+}
+.btn-open:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+/* ── Copy all button ── */
+.copy-all-btn {
+  width: 100%;
+  margin-top: 14px;
+  padding: 11px;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--navy);
+  background: var(--white);
+  border: 1.5px solid var(--border2);
+  border-radius: var(--r);
+  cursor: pointer;
+  transition: all .2s;
+  letter-spacing: .5px;
+}
+.copy-all-btn:hover {
+  background: var(--navy);
+  color: #fff;
+  border-color: var(--navy);
+}
+
+/* ── Error result ── */
+.ri-error {
+  background: var(--red-lt);
+  border-color: #fecaca;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 13px;
+  color: #991b1b;
+  margin-bottom: 10px;
+  font-family: var(--mono);
+}
+
+/* ── Info box ── */
+.info-box {
+  background: var(--amber-lt);
+  border: 1px solid #fcd34d;
+  border-radius: var(--r);
+  padding: 13px 16px;
+  font-size: 13px;
+  color: #78350f;
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+.info-box strong { font-weight: 600; display: block; margin-bottom: 3px; }
+
+/* ── Stats bar ── */
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.stat-box {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  text-align: center;
+  box-shadow: var(--sh);
+}
+.stat-val {
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--navy);
+  display: block;
+}
+.stat-lbl {
+  font-size: 11px;
+  color: var(--txt2);
+  margin-top: 2px;
+  display: block;
+  font-weight: 500;
+}
+
+/* ── Toast ── */
+#toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(70px);
+  background: var(--navy);
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 10px 22px;
+  border-radius: 100px;
+  box-shadow: var(--sh3);
+  transition: transform .3s;
+  z-index: 9999;
+  white-space: nowrap;
+  pointer-events: none;
+}
+#toast.show { transform: translateX(-50%) translateY(0); }
+#toast.ok  { background: #166534; }
+#toast.err { background: #991b1b; }
+
+@media(max-width:560px) {
+  .config-grid { grid-template-columns: 1fr; }
+  .stats-bar   { grid-template-columns: 1fr 1fr; }
+  .header h1   { font-size: 26px; }
+  .link-label  { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-logo">
+      <span class="header-logo-dot"></span>
+      FILEVAULT
+    </div>
+    <h1>Upload Files to GitHub</h1>
+    <p>Upload any file — document, image, audio, video — directly to your GitHub repo and get a public access link instantly.</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat-box"><span class="stat-val" id="statTotal">0</span><span class="stat-lbl">Files Queued</span></div>
+    <div class="stat-box"><span class="stat-val" id="statDone">0</span><span class="stat-lbl">Uploaded</span></div>
+    <div class="stat-box"><span class="stat-val" id="statSize">0 B</span><span class="stat-lbl">Total Size</span></div>
+  </div>
+
+  <!-- Config card -->
+  <div class="card" id="configCard">
+    <div class="card-header">
+      <div class="card-icon ci-amber">⚙️</div>
+      <div>
+        <h2>GitHub Configuration</h2>
+        <p>Set once — saved in browser. Never shared anywhere.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="info-box">
+        <strong>🔑 How to get a GitHub Token</strong>
+        Go to <strong>github.com → Settings → Developer Settings → Personal Access Tokens → Tokens (classic)</strong> → Generate new token → check <strong>repo</strong> scope → copy the token.
+      </div>
+      <div class="config-grid">
+        <div class="field">
+          <label for="cfgToken">GitHub Token</label>
+          <input type="password" id="cfgToken" placeholder="ghp_xxxxxxxxxxxx" autocomplete="off"/>
+          <div class="hint">Personal Access Token with <strong>repo</strong> scope</div>
+        </div>
+        <div class="field">
+          <label for="cfgUser">GitHub Username</label>
+          <input type="text" id="cfgUser" placeholder="your-username" autocomplete="off" spellcheck="false"/>
+        </div>
+        <div class="field">
+          <label for="cfgRepo">Repository Name</label>
+          <input type="text" id="cfgRepo" placeholder="my-files" autocomplete="off" spellcheck="false"/>
+          <div class="hint">Must be a <strong>public</strong> repo for public links</div>
+        </div>
+        <div class="field">
+          <label for="cfgBranch">Branch</label>
+          <input type="text" id="cfgBranch" placeholder="main" autocomplete="off"/>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;margin-top:4px">
+        <button class="save-btn" onclick="saveConfig()">💾 Save Configuration</button>
+        <div class="config-saved" id="configSaved">✅ Saved!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upload card -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon ci-blue">📤</div>
+      <div>
+        <h2>Upload Files</h2>
+        <p>Any format — documents, images, audio, video, archives</p>
+      </div>
+    </div>
+    <div class="card-body">
+
+      <!-- Drop zone -->
+      <div class="drop-zone" id="dropZone">
+        <input type="file" id="fileInput" multiple
+          accept="*/*"/>
+        <span class="dz-icon">☁️</span>
+        <div class="dz-title">Drop files here or click to browse</div>
+        <div class="dz-sub">Supports all file formats · Multiple files at once</div>
+        <div class="dz-formats">
+          <span class="dz-tag">📄 PDF DOC DOCX TXT</span>
+          <span class="dz-tag">🖼️ JPG PNG GIF SVG WEBP</span>
+          <span class="dz-tag">🎵 MP3 WAV OGG FLAC</span>
+          <span class="dz-tag">🎬 MP4 AVI MOV MKV</span>
+          <span class="dz-tag">📦 ZIP RAR 7Z TAR</span>
+          <span class="dz-tag">💻 PY JS HTML CSS</span>
+        </div>
+      </div>
+
+      <!-- File queue -->
+      <div class="file-queue" id="fileQueue">
+        <div class="fq-title">
+          <span>Files to Upload (<span id="queueCount">0</span>)</span>
+          <button class="fq-clear" onclick="clearQueue()">✕ Clear all</button>
+        </div>
+        <div id="queueList"></div>
+      </div>
+
+      <!-- Folder path -->
+      <div class="folder-row">
+        <label>Folder</label>
+        <input type="text" id="folderPath" placeholder="uploads  (leave empty for root)" autocomplete="off"/>
+      </div>
+
+      <!-- Upload button -->
+      <button class="upload-btn" id="uploadBtn" onclick="startUpload()" disabled>
+        ⬆️ &nbsp; Upload to GitHub
+      </button>
+
+      <!-- Overall progress -->
+      <div class="overall-prog" id="overallProg">
+        <div class="op-bar"><div class="op-fill" id="opFill"></div></div>
+        <div class="op-label" id="opLabel">Uploading 0 / 0…</div>
+      </div>
+
+      <!-- Results -->
+      <div class="results" id="results">
+        <div class="results-title">
+          ✅ Uploaded — Public Links
+        </div>
+        <div id="resultsList"></div>
+        <button class="copy-all-btn" id="copyAllBtn" onclick="copyAllLinks()">
+          📋 Copy All Links
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- How it works card -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon ci-green">📖</div>
+      <div>
+        <h2>How It Works</h2>
+        <p>Files go directly from your browser to GitHub via API</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div style="padding:14px;background:var(--bg);border-radius:10px;border:1px solid var(--border)">
+          <div style="font-size:20px;margin-bottom:6px">1️⃣</div>
+          <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:4px">Configure once</div>
+          <div style="font-size:12px;color:var(--txt2);line-height:1.6">Enter your GitHub token, username, and repo name. Saved locally in your browser.</div>
+        </div>
+        <div style="padding:14px;background:var(--bg);border-radius:10px;border:1px solid var(--border)">
+          <div style="font-size:20px;margin-bottom:6px">2️⃣</div>
+          <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:4px">Drop any files</div>
+          <div style="font-size:12px;color:var(--txt2);line-height:1.6">Drag and drop or click to select. Supports all file types. Multiple files at once.</div>
+        </div>
+        <div style="padding:14px;background:var(--bg);border-radius:10px;border:1px solid var(--border)">
+          <div style="font-size:20px;margin-bottom:6px">3️⃣</div>
+          <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:4px">Upload to GitHub</div>
+          <div style="font-size:12px;color:var(--txt2);line-height:1.6">Files are uploaded via GitHub API directly from your browser. No middleman server.</div>
+        </div>
+        <div style="padding:14px;background:var(--bg);border-radius:10px;border:1px solid var(--border)">
+          <div style="font-size:20px;margin-bottom:6px">4️⃣</div>
+          <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:4px">Get public link</div>
+          <div style="font-size:12px;color:var(--txt2);line-height:1.6">Instantly get a raw.githubusercontent.com link. Share with anyone — no login needed.</div>
+        </div>
+      </div>
+      <div style="margin-top:14px;padding:13px 16px;background:var(--blue-lt);border:1px solid #bfdbfe;border-radius:10px;font-size:12px;color:#1e40af;line-height:1.7">
+        <strong style="display:block;margin-bottom:3px;font-weight:600">📌 Public link format</strong>
+        <span style="font-family:var(--mono);font-size:11px">https://raw.githubusercontent.com/USERNAME/REPO/BRANCH/FOLDER/filename.ext</span><br/>
+        Anyone with this link can download the file directly — no GitHub account needed.
+      </div>
+    </div>
+  </div>
+
+</div>
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  FILEVAULT — GitHub File Uploader
+//  Uploads via GitHub Contents API
+//  Generates raw.githubusercontent.com links
+// ═══════════════════════════════════════════════
+
+let fileQueue  = [];   // { file, id, status, progress }
+let uploadedLinks = [];
+let uploadedCount = 0;
+
+// ── Config (localStorage) ────────────────────────────────────────────────────
+function saveConfig() {
+  const token  = document.getElementById('cfgToken').value.trim();
+  const user   = document.getElementById('cfgUser').value.trim();
+  const repo   = document.getElementById('cfgRepo').value.trim();
+  const branch = document.getElementById('cfgBranch').value.trim() || 'main';
+  if (!token || !user || !repo) { toast('Fill in all fields','err'); return; }
+  localStorage.setItem('fv_token',  token);
+  localStorage.setItem('fv_user',   user);
+  localStorage.setItem('fv_repo',   repo);
+  localStorage.setItem('fv_branch', branch);
+  document.getElementById('configSaved').classList.add('show');
+  setTimeout(() => document.getElementById('configSaved').classList.remove('show'), 2500);
+  toast('Configuration saved ✓', 'ok');
+}
+
+function loadConfig() {
+  document.getElementById('cfgToken').value  = localStorage.getItem('fv_token')  || '';
+  document.getElementById('cfgUser').value   = localStorage.getItem('fv_user')   || '';
+  document.getElementById('cfgRepo').value   = localStorage.getItem('fv_repo')   || '';
+  document.getElementById('cfgBranch').value = localStorage.getItem('fv_branch') || 'main';
+}
+
+function getConfig() {
+  return {
+    token:  localStorage.getItem('fv_token'),
+    user:   localStorage.getItem('fv_user'),
+    repo:   localStorage.getItem('fv_repo'),
+    branch: localStorage.getItem('fv_branch') || 'main',
+  };
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function fmt(b) {
+  if (b < 1024)     return b + ' B';
+  if (b < 1048576)  return (b/1024).toFixed(1) + ' KB';
+  if (b < 1073741824) return (b/1048576).toFixed(2) + ' MB';
+  return (b/1073741824).toFixed(2) + ' GB';
+}
+
+function uid() {
+  return Math.random().toString(36).slice(2, 9);
+}
+
+function toast(msg, cls='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className   = 'show' + (cls ? ' '+cls : '');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.className = '', 3000);
+}
+
+function getFileIcon(name) {
+  const ext = name.split('.').pop().toLowerCase();
+  const map = {
+    // Documents
+    pdf:'📄', doc:'📝', docx:'📝', txt:'📃', md:'📃',
+    xls:'📊', xlsx:'📊', csv:'📊', ppt:'📋', pptx:'📋',
+    // Images
+    jpg:'🖼️', jpeg:'🖼️', png:'🖼️', gif:'🖼️', svg:'🎨',
+    webp:'🖼️', ico:'🖼️', bmp:'🖼️', tiff:'🖼️',
+    // Audio
+    mp3:'🎵', wav:'🎵', ogg:'🎵', flac:'🎵', aac:'🎵', m4a:'🎵',
+    // Video
+    mp4:'🎬', avi:'🎬', mov:'🎬', mkv:'🎬', webm:'🎬', wmv:'🎬',
+    // Archives
+    zip:'📦', rar:'📦', gz:'📦', tar:'📦', '7z':'📦',
+    // Code
+    py:'💻', js:'💻', html:'💻', css:'💻', ts:'💻',
+    java:'💻', cpp:'💻', c:'💻', go:'💻', php:'💻',
+    // Other
+    exe:'⚙️', dmg:'⚙️', apk:'📱', json:'📋', xml:'📋',
+  };
+  return map[ext] || '📁';
+}
+
+function sanitizeFileName(name) {
+  // Replace spaces and unsafe chars for URL safety
+  return name.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9._\-]/g, '_');
+}
+
+// ── File Queue ────────────────────────────────────────────────────────────────
+function addFiles(files) {
+  for (const file of files) {
+    const id = uid();
+    fileQueue.push({ file, id, status:'waiting', progress:0 });
+  }
+  renderQueue();
+  updateStats();
+  document.getElementById('uploadBtn').disabled = fileQueue.length === 0;
+}
+
+function removeFile(id) {
+  fileQueue = fileQueue.filter(f => f.id !== id);
+  renderQueue();
+  updateStats();
+  document.getElementById('uploadBtn').disabled = fileQueue.length === 0;
+}
+
+function clearQueue() {
+  fileQueue = [];
+  renderQueue();
+  updateStats();
+  document.getElementById('uploadBtn').disabled = true;
+}
+
+function renderQueue() {
+  const list = document.getElementById('queueList');
+  const wrap = document.getElementById('fileQueue');
+  document.getElementById('queueCount').textContent = fileQueue.length;
+
+  if (fileQueue.length === 0) {
+    wrap.classList.remove('show');
+    document.getElementById('dropZone').classList.remove('has-files');
+    return;
+  }
+
+  wrap.classList.add('show');
+  document.getElementById('dropZone').classList.add('has-files');
+  document.querySelector('.dz-title').textContent = fileQueue.length + ' file(s) selected';
+  document.querySelector('.dz-sub').textContent   = 'Drop more files or click to add';
+
+  list.innerHTML = fileQueue.map(item => `
+    <div class="file-item" id="fi-${item.id}">
+      <div class="fi-icon">${getFileIcon(item.file.name)}</div>
+      <div class="fi-info">
+        <div class="fi-name">${escHtml(item.file.name)}</div>
+        <div class="fi-meta">${fmt(item.file.size)} · ${item.file.type || 'unknown type'}</div>
+        <div class="fi-prog"><div class="fi-prog-fill" id="fp-${item.id}" style="width:${item.progress}%"></div></div>
+      </div>
+      <div class="fi-status ${item.status}" id="fs-${item.id}">
+        ${item.status === 'waiting'   ? 'waiting'   : ''}
+        ${item.status === 'uploading' ? 'uploading…' : ''}
+        ${item.status === 'done'      ? '✅ done'   : ''}
+        ${item.status === 'error'     ? '❌ error'  : ''}
+      </div>
+      ${item.status === 'waiting'
+        ? `<button class="fi-remove" onclick="removeFile('${item.id}')">✕</button>`
+        : ''}
+    </div>
+  `).join('');
+}
+
+function updateItemStatus(id, status, progress=0) {
+  const item = fileQueue.find(f => f.id === id);
+  if (item) { item.status = status; item.progress = progress; }
+  const progEl   = document.getElementById('fp-'+id);
+  const statusEl = document.getElementById('fs-'+id);
+  if (progEl)   progEl.style.width = progress + '%';
+  if (statusEl) {
+    statusEl.className = 'fi-status ' + status;
+    statusEl.textContent =
+      status === 'waiting'   ? 'waiting'   :
+      status === 'uploading' ? 'uploading…' :
+      status === 'done'      ? '✅ done'   : '❌ error';
+  }
+}
+
+function updateStats() {
+  const total = fileQueue.length;
+  const size  = fileQueue.reduce((s, f) => s + f.file.size, 0);
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statSize').textContent  = fmt(size);
+  document.getElementById('statDone').textContent  = uploadedCount;
+}
+
+// ── Drop zone events ──────────────────────────────────────────────────────────
+const dz = document.getElementById('dropZone');
+dz.addEventListener('dragover',  e => { e.preventDefault(); dz.classList.add('over'); });
+dz.addEventListener('dragleave', ()  => dz.classList.remove('over'));
+dz.addEventListener('drop', e => {
+  e.preventDefault();
+  dz.classList.remove('over');
+  if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
+});
+document.getElementById('fileInput').addEventListener('change', function() {
+  if (this.files.length) addFiles(this.files);
+  this.value = '';
+});
+
+// ── Upload ────────────────────────────────────────────────────────────────────
+async function startUpload() {
+  const cfg = getConfig();
+  if (!cfg.token || !cfg.user || !cfg.repo) {
+    toast('Configure GitHub settings first','err');
+    document.getElementById('configCard').scrollIntoView({behavior:'smooth'});
+    return;
+  }
+  if (fileQueue.length === 0) { toast('Select files first','err'); return; }
+
+  const waiting = fileQueue.filter(f => f.status === 'waiting');
+  if (waiting.length === 0) { toast('All files already uploaded','err'); return; }
+
+  document.getElementById('uploadBtn').disabled = true;
+  document.getElementById('overallProg').classList.add('show');
+  document.getElementById('results').classList.remove('show');
+  document.getElementById('resultsList').innerHTML = '';
+  uploadedLinks = [];
+
+  const folder  = document.getElementById('folderPath').value.trim().replace(/^\/|\/$/g,'');
+  const total   = waiting.length;
+  let   done    = 0;
+
+  for (const item of waiting) {
+    updateItemStatus(item.id, 'uploading', 30);
+    document.getElementById('opLabel').textContent = `Uploading ${done+1} / ${total}  —  ${item.file.name}`;
+    document.getElementById('opFill').style.width  = ((done/total)*100) + '%';
+
+    try {
+      const result = await uploadFile(item.file, folder, cfg);
+      updateItemStatus(item.id, 'done', 100);
+      uploadedLinks.push({ name: item.file.name, ...result });
+      done++;
+      uploadedCount++;
+      updateStats();
+      addResultItem(item.file, result);
+    } catch(e) {
+      updateItemStatus(item.id, 'error', 0);
+      addErrorItem(item.file.name, e.message);
+      toast('Failed: '+item.file.name, 'err');
+    }
+  }
+
+  document.getElementById('opFill').style.width  = '100%';
+  document.getElementById('opLabel').textContent = `Done! ${done} / ${total} files uploaded`;
+  document.getElementById('uploadBtn').disabled  = false;
+  document.getElementById('results').classList.add('show');
+
+  if (done > 0) toast(`${done} file(s) uploaded successfully!`, 'ok');
+}
+
+async function uploadFile(file, folder, cfg) {
+  // Read file as base64
+  const base64 = await fileToBase64(file);
+
+  // Build path in repo
+  const safeName = sanitizeFileName(file.name);
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0,19);
+  const finalName = safeName;
+  const repoPath  = folder ? `${folder}/${finalName}` : finalName;
+
+  // Check if file already exists (to get SHA for update)
+  let sha = null;
+  try {
+    const checkRes = await fetch(
+      `https://api.github.com/repos/${cfg.user}/${cfg.repo}/contents/${repoPath}`,
+      { headers: { 'Authorization': `token ${cfg.token}`, 'Accept': 'application/vnd.github.v3+json' } }
+    );
+    if (checkRes.ok) {
+      const existing = await checkRes.json();
+      sha = existing.sha;
+    }
+  } catch(e) {}
+
+  // Upload via GitHub Contents API
+  const body = {
+    message: `Upload ${finalName} via FileVault`,
+    content: base64,
+    branch:  cfg.branch,
+  };
+  if (sha) body.sha = sha;
+
+  const res = await fetch(
+    `https://api.github.com/repos/${cfg.user}/${cfg.repo}/contents/${repoPath}`,
+    {
+      method:  'PUT',
+      headers: {
+        'Authorization': `token ${cfg.token}`,
+        'Accept':        'application/vnd.github.v3+json',
+        'Content-Type':  'application/json',
+      },
+      body: JSON.stringify(body),
+    }
+  );
+
+  if (!res.ok) {
+    const err = await res.json().catch(()=>({}));
+    throw new Error(err.message || `HTTP ${res.status}`);
+  }
+
+  const data = await res.json();
+
+  const rawLink    = `https://raw.githubusercontent.com/${cfg.user}/${cfg.repo}/${cfg.branch}/${repoPath}`;
+  const githubLink = `https://github.com/${cfg.user}/${cfg.repo}/blob/${cfg.branch}/${repoPath}`;
+
+  return { rawLink, githubLink, repoPath, size: file.size };
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload  = () => {
+      // Result is "data:...;base64,XXXXX" — we want only the base64 part
+      const b64 = reader.result.split(',')[1];
+      resolve(b64);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// ── Results ───────────────────────────────────────────────────────────────────
+function addResultItem(file, result) {
+  const list = document.getElementById('resultsList');
+  const div  = document.createElement('div');
+  div.className = 'result-item';
+  div.innerHTML = `
+    <div class="ri-top">
+      <div class="ri-icon">${getFileIcon(file.name)}</div>
+      <div class="ri-name">${escHtml(file.name)}</div>
+      <div class="ri-size">${fmt(file.size)}</div>
+    </div>
+    <div class="ri-links">
+      <div class="link-row">
+        <span class="link-label">RAW</span>
+        <div class="link-val" title="${result.rawLink}">${result.rawLink}</div>
+        <div class="link-actions">
+          <button class="action-btn btn-copy" onclick="copyLink(this, '${result.rawLink}')">Copy</button>
+          <a class="action-btn btn-open" href="${result.rawLink}" target="_blank">Open</a>
+        </div>
+      </div>
+      <div class="link-row">
+        <span class="link-label">PAGE</span>
+        <div class="link-val" title="${result.githubLink}">${result.githubLink}</div>
+        <div class="link-actions">
+          <button class="action-btn btn-copy" onclick="copyLink(this, '${result.githubLink}')">Copy</button>
+          <a class="action-btn btn-open" href="${result.githubLink}" target="_blank">Open</a>
+        </div>
+      </div>
+    </div>`;
+  list.appendChild(div);
+}
+
+function addErrorItem(name, message) {
+  const list = document.getElementById('resultsList');
+  const div  = document.createElement('div');
+  div.className = 'ri-error';
+  div.innerHTML = `❌ ${escHtml(name)} — ${escHtml(message)}`;
+  list.appendChild(div);
+}
+
+function copyLink(btn, link) {
+  navigator.clipboard.writeText(link).then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent='Copy'; btn.classList.remove('copied'); }, 2000);
+    toast('Link copied!', 'ok');
+  });
+}
+
+function copyAllLinks() {
+  if (uploadedLinks.length === 0) return;
+  const text = uploadedLinks.map(l => `${l.name}\nRAW: ${l.rawLink}\nPage: ${l.githubLink}`).join('\n\n');
+  navigator.clipboard.writeText(text).then(() => {
+    toast('All links copied!','ok');
+    const btn = document.getElementById('copyAllBtn');
+    btn.textContent = '✅ All Links Copied!';
+    setTimeout(() => btn.textContent = '📋 Copy All Links', 2500);
+  });
+}
+
+function escHtml(t) {
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+loadConfig();
+</script>
+</body>
+</html>
