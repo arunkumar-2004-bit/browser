@@ -1,447 +1,265 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>🌐 Cross-Network Secure File Transfer</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e1e2e 0%, #313244 100%);
-            color: white;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: rgba(49, 50, 68, 0.95);
-            border-radius: 25px;
-            padding: 40px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-        }
-        h1 {
-            text-align: center;
-            font-size: 32px;
-            background: linear-gradient(45deg, #00ff88, #00d4ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 30px;
-        }
-        .connection-id {
-            background: rgba(0,212,255,0.2);
-            border: 2px solid #00d4ff;
-            border-radius: 20px;
-            padding: 25px;
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 20px;
-            font-weight: bold;
-        }
-        .id-field {
-            background: rgba(0,0,0,0.3);
-            border: none;
-            color: #00ff88;
-            font-size: 24px;
-            font-family: monospace;
-            letter-spacing: 2px;
-            text-align: center;
-            width: 100%;
-            margin-top: 10px;
-        }
-        .mode-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-        .mode-btn {
-            padding: 20px;
-            border: 3px solid #00d4ff;
-            border-radius: 20px;
-            background: transparent;
-            color: white;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .mode-btn.active {
-            background: linear-gradient(45deg, #00ff88, #00d4ff);
-            color: black;
-            transform: scale(1.05);
-        }
-        .connect-btn {
-            width: 100%;
-            padding: 25px;
-            background: linear-gradient(45deg, #00ff88, #00d4ff);
-            color: black;
-            border: none;
-            border-radius: 20px;
-            font-size: 22px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-bottom: 30px;
-            transition: all 0.3s;
-        }
-        .connect-btn:hover:not(:disabled) {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 35px rgba(0,255,136,0.4);
-        }
-        .connect-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        .file-area {
-            border: 4px dashed #00d4ff;
-            border-radius: 25px;
-            padding: 50px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-bottom: 25px;
-            background: rgba(42,43,62,0.4);
-        }
-        .file-area:hover { border-color: #00ff88; }
-        .file-area.dragover { 
-            border-color: #00ff88; 
-            background: rgba(0,255,136,0.2);
-            transform: scale(1.02);
-        }
-        .file-icon { font-size: 64px; margin-bottom: 20px; }
-        .file-list {
-            background: rgba(30,30,46,0.8);
-            border-radius: 20px;
-            padding: 25px;
-            max-height: 200px;
-            overflow-y: auto;
-            font-family: 'Courier New', monospace;
-            font-size: 16px;
-            line-height: 1.6;
-        }
-        .status {
-            padding: 20px;
-            border-radius: 20px;
-            text-align: center;
-            font-weight: bold;
-            font-size: 20px;
-            margin-bottom: 25px;
-        }
-        .status.connected { background: rgba(0,255,136,0.2); color: #00ff88; }
-        .status.connecting { background: rgba(255,170,0,0.2); color: #ffaa00; }
-        .status.error { background: rgba(255,85,85,0.2); color: #ff5555; }
-        .progress {
-            width: 100%;
-            height: 12px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 6px;
-            overflow: hidden;
-            margin-top: 20px;
-        }
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #00d4ff, #00ff88);
-            width: 0%;
-            transition: width 0.3s;
-        }
-        .qr-code {
-            text-align: center;
-            margin: 20px 0;
-        }
-        .qr-code canvas {
-            border: 2px solid #00d4ff;
-            border-radius: 15px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quit the Distracts — Ad-Free Browsing</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <div class="container">
-        <h1>🌐 Cross-Network Transfer</h1>
-        
-        <div class="connection-id">
-            <div>Your Connection ID:</div>
-            <input type="text" class="id-field" id="myId" readonly>
-            <div style="font-size: 14px; margin-top: 10px; opacity: 0.8;">
-                Share this ID with other device
-            </div>
-        </div>
 
-        <div class="mode-grid">
-            <button class="mode-btn active" onclick="setMode('sender')">📤 Sender</button>
-            <button class="mode-btn" onclick="setMode('receiver')">📥 Receiver</button>
-        </div>
+  <!-- HEADER -->
+  <header class="header">
+    <div class="logo">
+      <span class="logo-icon">⊘</span>
+      <span class="logo-text">Quit the <em>Distracts</em></span>
+    </div>
+    <nav class="nav">
+      <a href="#how">How it works</a>
+      <a href="#techniques">Techniques</a>
+      <a href="#host">Host it</a>
+    </nav>
+  </header>
 
-        <div style="text-align: center; margin-bottom: 20px;">
-            <input type="text" id="remoteId" placeholder="Enter remote ID" style="width: 70%; padding: 15px; margin-right: 10px;">
-            <button class="connect-btn" id="connectBtn" onclick="connect()">🔗 CONNECT</button>
-        </div>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-badge">Brave-style Ad Blocking ✦ Free & Open Source</div>
+    <h1 class="hero-title">Browse<br/><span class="accent">without the noise.</span></h1>
+    <p class="hero-sub">Paste any URL below. We strip ads, block trackers, and show you exactly what was hiding on the page.</p>
 
-        <div id="status" class="status" style="display: none;"></div>
-
-        <div class="file-area" id="fileArea" onclick="selectFiles()">
-            <div class="file-icon">📁</div>
-            <div>Click or drag files here</div>
-            <input type="file" id="fileInput" multiple style="display: none;">
-        </div>
-
-        <div id="fileList" class="file-list" style="display: none;"></div>
-        <div id="receivedList" class="file-list">Waiting for files...</div>
-
-        <div class="progress">
-            <div class="progress-fill" id="progressFill"></div>
-        </div>
-
-        <div class="qr-code" id="qrCode" style="display: none;"></div>
+    <div class="url-box">
+      <div class="url-row">
+        <input id="urlInput" type="url" placeholder="https://example.com" autocomplete="off" spellcheck="false" />
+        <button id="goBtn" onclick="analyzeURL()">
+          <span class="btn-text">Clean It</span>
+          <span class="btn-icon">→</span>
+        </button>
+      </div>
+      <div class="url-hints">
+        <span onclick="setDemo('https://www.reddit.com')">reddit.com</span>
+        <span onclick="setDemo('https://www.cnn.com')">cnn.com</span>
+        <span onclick="setDemo('https://www.forbes.com')">forbes.com</span>
+        <span onclick="setDemo('https://www.msn.com')">msn.com</span>
+      </div>
     </div>
 
-    <!-- WebRTC + Signaling Server -->
-    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-    <script>
-        class CrossNetworkTransfer {
-            constructor() {
-                this.localId = this.generateId();
-                this.socket = io('wss://file-transfer-8z9k.onrender.com'); // Free signaling server
-                this.peerConnection = null;
-                this.dataChannel = null;
-                this.selectedFiles = [];
-                this.isSender = true;
-                this.init();
-            }
+    <div id="loadingState" class="loading hidden">
+      <div class="spinner"></div>
+      <p>Scanning for trackers and ads…</p>
+    </div>
+  </section>
 
-            generateId() {
-                return Math.random().toString(36).substr(2, 9).toUpperCase();
-            }
+  <!-- RESULTS PANEL -->
+  <section id="results" class="results hidden">
+    <div class="results-header">
+      <div class="results-title-row">
+        <h2>Scan Report</h2>
+        <span id="scannedUrl" class="scanned-url-badge"></span>
+      </div>
+      <div class="score-row">
+        <div class="score-card" id="scoreAds">
+          <div class="score-num">0</div>
+          <div class="score-label">Ads Blocked</div>
+        </div>
+        <div class="score-card" id="scoreTrackers">
+          <div class="score-num">0</div>
+          <div class="score-label">Trackers Found</div>
+        </div>
+        <div class="score-card" id="scoreScripts">
+          <div class="score-num">0</div>
+          <div class="score-label">Scripts Detected</div>
+        </div>
+        <div class="score-card clean-score" id="scoreClean">
+          <div class="score-num">–</div>
+          <div class="score-label">Privacy Score</div>
+        </div>
+      </div>
+    </div>
 
-            init() {
-                document.getElementById('myId').value = this.localId;
-                this.bindEvents();
-                this.socket.on('connect', () => {
-                    console.log('Signaling server connected');
-                });
-            }
+    <div class="results-grid">
+      <!-- Trackers list -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-icon">🕵️</span>
+          <h3>Trackers Detected</h3>
+        </div>
+        <ul id="trackerList" class="item-list"></ul>
+      </div>
 
-            bindEvents() {
-                this.socket.on('offer', (data) => this.handleOffer(data));
-                this.socket.on('answer', (data) => this.handleAnswer(data));
-                this.socket.on('ice-candidate', (data) => this.handleIceCandidate(data));
-            }
+      <!-- Ads list -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-icon">🚫</span>
+          <h3>Ad Networks Blocked</h3>
+        </div>
+        <ul id="adList" class="item-list"></ul>
+      </div>
 
-            setMode(mode) {
-                this.isSender = mode === 'sender';
-                document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
-                event.target.classList.add('active');
-                document.getElementById('fileArea').style.display = this.isSender ? 'block' : 'none';
-            }
+      <!-- Scripts -->
+      <div class="card wide">
+        <div class="card-header">
+          <span class="card-icon">📜</span>
+          <h3>Third-Party Scripts</h3>
+        </div>
+        <div id="scriptList" class="script-grid"></div>
+      </div>
 
-            async connect() {
-                const remoteId = document.getElementById('remoteId').value.trim();
-                if (!remoteId) {
-                    this.showStatus('Enter remote ID!', 'error');
-                    return;
-                }
+      <!-- Techniques used -->
+      <div class="card wide">
+        <div class="card-header">
+          <span class="card-icon">🛡️</span>
+          <h3>Blocking Techniques Applied</h3>
+        </div>
+        <div id="techniqueList" class="technique-grid"></div>
+      </div>
 
-                this.showStatus('🔄 Connecting...', 'connecting');
-                document.getElementById('connectBtn').disabled = true;
+      <!-- Cleaned preview -->
+      <div class="card full">
+        <div class="card-header">
+          <span class="card-icon">🪟</span>
+          <h3>Cleaned Page Preview</h3>
+          <span class="preview-note">Ads & trackers removed via proxy</span>
+        </div>
+        <div class="iframe-wrap">
+          <iframe id="cleanedFrame" sandbox="allow-scripts allow-same-origin" loading="lazy"></iframe>
+          <div id="iframeBlockMsg" class="iframe-block-msg hidden">
+            <span>⚠️</span>
+            <p>This site blocks iframe embedding (X-Frame-Options). <br/>The scan data above is still accurate — only the preview is unavailable.</p>
+            <a id="openOriginal" href="#" target="_blank" rel="noopener">Open original site →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-                // Create peer connection
-                this.peerConnection = new RTCPeerConnection({
-                    iceServers: [
-                        { urls: 'stun:stun.l.google.com:19302' },
-                        { urls: 'stun:stun1.l.google.com:19302' },
-                        { urls: 'stun:stun2.l.google.com:19302' }
-                    ]
-                });
+  <!-- HOW IT WORKS -->
+  <section id="how" class="info-section">
+    <div class="section-label">Under the hood</div>
+    <h2 class="section-title">How It Works</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <h4>URL Parsed</h4>
+        <p>The domain is extracted and matched against curated blocklists (EasyList, EasyPrivacy, uBlock Origin filters).</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <h4>DNS Lookup Blocked</h4>
+        <p>Known ad/tracker domains are intercepted at the network layer before any request is made.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <h4>Script Injection</h4>
+        <p>A content script removes DOM elements matching ad selectors (div[class*="ad"], iframes, overlays).</p>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <h4>Report Generated</h4>
+        <p>All blocked resources are logged and shown to you — full transparency on what was hiding.</p>
+      </div>
+    </div>
+  </section>
 
-                this.peerConnection.onicecandidate = (event) => {
-                    if (event.candidate) {
-                        this.socket.emit('ice-candidate', {
-                            candidate: event.candidate,
-                            from: this.localId,
-                            to: remoteId
-                        });
-                    }
-                };
+  <!-- TECHNIQUES -->
+  <section id="techniques" class="info-section alt">
+    <div class="section-label">Technical deep-dive</div>
+    <h2 class="section-title">Blocking Techniques</h2>
+    <div class="tech-cards">
+      <div class="tech-card">
+        <div class="tech-icon">🔗</div>
+        <h4>URL / Network Filtering</h4>
+        <p>Requests to known ad/tracker domains (doubleclick.net, googlesyndication.com, etc.) are blocked before they reach the network using a blocklist lookup.</p>
+        <code>Fetch/XHR intercept + blocklist matching</code>
+      </div>
+      <div class="tech-card">
+        <div class="tech-icon">🧹</div>
+        <h4>DOM Cosmetic Filtering</h4>
+        <p>CSS selectors from EasyList cosmetic filters hide or remove ad containers, sticky banners, and popups from the rendered page.</p>
+        <code>document.querySelectorAll + display:none</code>
+      </div>
+      <div class="tech-card">
+        <div class="tech-icon">🍪</div>
+        <h4>Cookie & Storage Blocking</h4>
+        <p>Third-party cookies, localStorage trackers, and fingerprinting scripts are prevented from running via script sandboxing.</p>
+        <code>SameSite=Strict + StorageAccess API</code>
+      </div>
+      <div class="tech-card">
+        <div class="tech-icon">🔍</div>
+        <h4>DNS-over-HTTPS (DoH)</h4>
+        <p>Routing DNS queries over HTTPS prevents ISPs and trackers from seeing which domains you resolve — used by Brave & Firefox.</p>
+        <code>Cloudflare / Google DoH endpoints</code>
+      </div>
+      <div class="tech-card">
+        <div class="tech-icon">🧠</div>
+        <h4>Fingerprint Randomization</h4>
+        <p>Canvas, WebGL, AudioContext, and font fingerprinting APIs return randomized values to prevent cross-site tracking without cookies.</p>
+        <code>navigator override + canvas noise injection</code>
+      </div>
+      <div class="tech-card">
+        <div class="tech-icon">📡</div>
+        <h4>CNAME Tracking Uncloaking</h4>
+        <p>Trackers disguise themselves as first-party via CNAME DNS records. We resolve CNAMEs and compare against blocklists to catch these.</p>
+        <code>DNS CNAME resolution + blocklist match</code>
+      </div>
+    </div>
+  </section>
 
-                this.peerConnection.ondatachannel = (event) => {
-                    this.dataChannel = event.channel;
-                    this.setupDataChannel();
-                };
+  <!-- GITHUB HOSTING GUIDE -->
+  <section id="host" class="info-section">
+    <div class="section-label">Deploy it yourself</div>
+    <h2 class="section-title">Host on GitHub Pages</h2>
+    <div class="host-steps">
+      <div class="host-step">
+        <span class="host-num">1</span>
+        <div>
+          <h4>Create a GitHub Repo</h4>
+          <p>Go to github.com → New Repository → name it <code>quit-the-distracts</code> → Public → Create.</p>
+        </div>
+      </div>
+      <div class="host-step">
+        <span class="host-num">2</span>
+        <div>
+          <h4>Upload the Files</h4>
+          <p>Upload <code>index.html</code>, <code>style.css</code>, <code>app.js</code>, and <code>blocklist.js</code> to the repo root.</p>
+        </div>
+      </div>
+      <div class="host-step">
+        <span class="host-num">3</span>
+        <div>
+          <h4>Enable GitHub Pages</h4>
+          <p>Settings → Pages → Source: <strong>Deploy from branch</strong> → Branch: <code>main</code> / <code>/ (root)</code> → Save.</p>
+        </div>
+      </div>
+      <div class="host-step">
+        <span class="host-num">4</span>
+        <div>
+          <h4>Your Site is Live</h4>
+          <p>Visit <code>https://yourusername.github.io/quit-the-distracts</code> — it's live and free forever.</p>
+        </div>
+      </div>
+      <div class="host-step">
+        <span class="host-num">5</span>
+        <div>
+          <h4>Optional: Custom Domain</h4>
+          <p>Add a <code>CNAME</code> file with your domain name, then configure DNS records with your registrar. GitHub handles HTTPS automatically.</p>
+        </div>
+      </div>
+    </div>
+    <div class="proxy-note">
+      <strong>⚠️ About the Proxy:</strong> Full ad-removal from live pages requires a server-side proxy (e.g., Cloudflare Workers, Vercel Edge, or Node.js). The scan/report feature works entirely in the browser. For the cleaned preview, deploy <code>proxy.js</code> to Vercel or Cloudflare Workers and update the <code>PROXY_URL</code> in <code>app.js</code>.
+    </div>
+  </section>
 
-                if (this.isSender) {
-                    // Create data channel
-                    this.dataChannel = this.peerConnection.createDataChannel('fileTransfer');
-                    this.setupDataChannel();
-                    const offer = await this.peerConnection.createOffer();
-                    await this.peerConnection.setLocalDescription(offer);
-                    this.socket.emit('offer', {
-                        offer: offer,
-                        from: this.localId,
-                        to: remoteId
-                    });
-                }
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-logo">⊘ Quit the Distracts</div>
+    <p>Open source. No tracking. No irony.</p>
+    <p class="footer-sub">Built with EasyList · uBlock Origin filters · DNS blocklists</p>
+  </footer>
 
-                // Listen for remote connection
-                setTimeout(() => {
-                    if (this.dataChannel && this.dataChannel.readyState === 'open') {
-                        this.showStatus('✅ Connected across networks!', 'connected');
-                    }
-                }, 5000);
-            }
-
-            setupDataChannel() {
-                this.dataChannel.onopen = () => {
-                    console.log('Data channel open');
-                };
-
-                this.dataChannel.onmessage = (event) => {
-                    const data = JSON.parse(event.data);
-                    if (data.type === 'fileChunk') {
-                        this.handleFileChunk(data);
-                    }
-                };
-            }
-
-            handleOffer(data) {
-                if (data.to === this.localId) {
-                    this.peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer))
-                    .then(() => {
-                        return this.peerConnection.createAnswer();
-                    })
-                    .then((answer) => {
-                        this.peerConnection.setLocalDescription(answer);
-                        this.socket.emit('answer', {
-                            answer: answer,
-                            from: this.localId,
-                            to: data.from
-                        });
-                    });
-                }
-            }
-
-            handleAnswer(data) {
-                if (data.to === this.localId) {
-                    this.peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
-                }
-            }
-
-            handleIceCandidate(data) {
-                if (data.to === this.localId) {
-                    this.peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
-                }
-            }
-
-            selectFiles() {
-                document.getElementById('fileInput').click();
-            }
-
-            handleFiles(files) {
-                this.selectedFiles = Array.from(files);
-                const list = document.getElementById('fileList');
-                list.style.display = 'block';
-                list.innerHTML = this.selectedFiles.map(f => 
-                    `📄 ${f.name} (${(f.size/1024).toFixed(1)}KB)`
-                ).join('<br>');
-            }
-
-            async sendFiles() {
-                for (let file of this.selectedFiles) {
-                    await this.sendFile(file);
-                }
-                this.selectedFiles = [];
-                document.getElementById('fileList').style.display = 'none';
-            }
-
-            async sendFile(file) {
-                const chunkSize = 16384; // 16KB chunks
-                const totalChunks = Math.ceil(file.size / chunkSize);
-
-                for (let i = 0; i < totalChunks; i++) {
-                    const start = i * chunkSize;
-                    const end = Math.min(start + chunkSize, file.size);
-                    const chunk = file.slice(start, end);
-                    
-                    const reader = new FileReader();
-                    await new Promise((resolve) => {
-                        reader.onload = (e) => {
-                            this.dataChannel.send(JSON.stringify({
-                                type: 'fileChunk',
-                                name: file.name,
-                                chunk: e.target.result,
-                                index: i,
-                                total: totalChunks
-                            }));
-                            resolve();
-                        };
-                        reader.readAsArrayBuffer(chunk);
-                    });
-
-                    // Update progress
-                    const percent = ((i + 1) / totalChunks) * 100;
-                    document.getElementById('progressFill').style.width = percent + '%';
-                }
-            }
-
-            handleFileChunk(data) {
-                // Download received file
-                const blob = new Blob([data.chunk]);
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = data.name;
-                a.click();
-
-                const list = document.getElementById('receivedList');
-                list.innerHTML += `<div>✅ ${data.name}</div>`;
-                this.showStatus(`✅ ${data.name} received!`, 'connected');
-            }
-
-            showStatus(msg, type) {
-                const status = document.getElementById('status');
-                status.textContent = msg;
-                status.className = `status ${type}`;
-                status.style.display = 'block';
-            }
-        }
-
-        // Global instance
-        const transfer = new CrossNetworkTransfer();
-
-        // Event listeners
-        document.getElementById('fileInput').addEventListener('change', (e) => {
-            transfer.handleFiles(e.target.files);
-        });
-
-        const fileArea = document.getElementById('fileArea');
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(event => {
-            fileArea.addEventListener(event, e => e.preventDefault());
-        });
-
-        ['dragenter', 'dragover'].forEach(event => {
-            fileArea.addEventListener(event, () => fileArea.classList.add('dragover'));
-        });
-        ['dragleave', 'drop'].forEach(event => {
-            fileArea.addEventListener(event, () => fileArea.classList.remove('dragover'));
-        });
-
-        fileArea.addEventListener('drop', e => {
-            transfer.handleFiles(e.dataTransfer.files);
-        });
-
-        function setMode(mode) {
-            transfer.setMode(mode);
-        }
-
-        function connect() {
-            transfer.connect();
-        }
-
-        // Auto-send when connected and files selected
-        setInterval(() => {
-            if (transfer.dataChannel?.readyState === 'open' && transfer.selectedFiles.length > 0) {
-                transfer.sendFiles();
-            }
-        }, 1000);
-    </script>
+  <script src="blocklist.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
