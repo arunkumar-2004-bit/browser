@@ -1,6 +1,6 @@
-pip install flask
-pip install cryptography
-pip install pyOpenSSL  # for smtplib SSL (optional but recommended)
-pip install requests
-pip install yara-python  # if you want YARA; can be skipped if YARA_AVAILABLE=False
-pip install binwalk      # if you want binwalk scans (optional)
+flask
+requests
+cryptography
+yara-python
+binwalk
+email-validator
