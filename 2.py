@@ -701,4 +701,4 @@ if __name__ == "__main__":
     print("  Press Ctrl+C to stop the server.\n")
     # Open browser after 1 second (give Flask time to start)
     threading.Timer(1.0, lambda: webbrowser.open(url)).start()
-    app.run(host='127.0.0.1', port=WEB_PORT, debug=False, threaded=True)
+    app.run(host='0.0.0.0', port=WEB_PORT, debug=False, threaded=True)
