@@ -1,0 +1,435 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Search</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh; display: flex; flex-direction: column;
+        }
+        .header {
+            background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);
+            padding: 15px 20px; color: white; display: flex;
+            justify-content: space-between; align-items: center;
+        }
+        .header h1 { font-size: 1.5em; font-weight: 600; margin: 0; }
+        .current-datetime {
+            background: rgba(255,255,255,0.2); padding: 8px 16px;
+            border-radius: 20px; font-size: 0.9em; font-weight: 500;
+            backdrop-filter: blur(10px); box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            white-space: nowrap;
+        }
+        .search-container {
+            flex: 1; display: flex; flex-direction: column;
+            max-width: 900px; margin: 0 auto; padding: 20px; gap: 20px;
+        }
+        .main-input { position: relative; }
+        #mainSearch {
+            width: 100%; padding: 20px 70px 20px 20px; font-size: 18px;
+            border: none; border-radius: 50px; outline: none;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2); background: rgba(255,255,255,0.95);
+        }
+        #mainSearch::placeholder { color: #a0aec0; font-weight: 400; }
+        .search-btn {
+            position: absolute; right: 15px; top: 50%; transform: translateY(-50%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none; border-radius: 50%; width: 45px; height: 45px;
+            color: white; font-size: 18px; cursor: pointer; transition: all 0.3s ease;
+        }
+        .search-btn:hover { transform: translateY(-50%) scale(1.1); box-shadow: 0 5px 20px rgba(102,126,234,0.4); }
+        .operators-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px; background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px); padding: 25px; border-radius: 20px;
+        }
+        .operator-group {
+            background: rgba(255,255,255,0.95); padding: 20px;
+            border-radius: 15px; box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        .operator-group:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(0,0,0,0.2); }
+        .operator-title {
+            font-weight: 600; color: #2d3748; margin-bottom: 12px;
+            font-size: 0.95em; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .operator-inputs { display: flex; flex-direction: column; gap: 8px; }
+        .input-with-clear { position: relative; }
+        .clear-btn {
+            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+            background: #ff6b6b; border: none; border-radius: 50%; width: 24px; height: 24px;
+            color: white; font-size: 14px; font-weight: bold; cursor: pointer;
+            opacity: 0; transition: all 0.2s ease; display: none;
+        }
+        .clear-btn:hover { background: #ff5252; transform: translateY(-50%) scale(1.1); }
+        .input-with-clear:focus-within .clear-btn,
+        .input-with-clear.has-value .clear-btn {
+            opacity: 1; display: flex; align-items: center; justify-content: center;
+        }
+        .filetype-select, .date-input {
+            padding: 15px 45px 15px 18px; border: 2px solid #e2e8f0;
+            border-radius: 8px; font-size: 16px; background: white; cursor: pointer;
+            appearance: none; transition: all 0.3s ease; height: 48px;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat; background-position: right 35px center;
+            background-size: 18px; box-sizing: border-box;
+        }
+        .filetype-select:focus, .date-input:focus { 
+            outline: none; border-color: #667eea; 
+        }
+        input[type="text"], input[type="search"], input[type="date"] {
+            padding: 15px 45px 15px 18px; border: 2px solid #e2e8f0;
+            border-radius: 8px; font-size: 16px; transition: all 0.3s ease;
+            background: white; height: 48px; box-sizing: border-box;
+        }
+        input[type="text"]:focus, input[type="search"]:focus, input[type="date"]:focus { 
+            outline: none; border-color: #667eea; 
+        }
+        .date-row {
+            display: flex; gap: 10px; flex-wrap: wrap;
+        }
+        .date-row input {
+            flex: 1; min-width: 160px;
+        }
+        .action-buttons { 
+            display: flex; gap: 10px; justify-content: center; margin-top: 20px; 
+            flex-wrap: wrap; 
+        }
+        .btn {
+            padding: 12px 25px; border: none; border-radius: 25px;
+            font-size: 15px; font-weight: 600; cursor: pointer;
+            transition: all 0.3s ease; flex: 1; max-width: 150px; min-width: 120px;
+        }
+        .btn-primary, .btn-secondary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.2); }
+        .results-area {
+            background: rgba(255,255,255,0.95); border-radius: 15px; padding: 25px;
+            margin-top: 20px; display: none;
+        }
+        .query-display {
+            background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 10px;
+            padding: 20px; font-family: 'Courier New', monospace; font-size: 16px;
+            color: #2d3748; word-break: break-all; margin-bottom: 20px; cursor: pointer;
+        }
+        .browser-buttons {
+            display: flex; gap: 10px; justify-content: center; margin-top: 20px; flex-wrap: wrap;
+        }
+        .browser-btn {
+            padding: 12px 20px; border: none; border-radius: 25px; font-size: 14px;
+            font-weight: 600; cursor: pointer; transition: all 0.3s ease;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;
+            flex: 1; min-width: 120px; max-width: 150px;
+        }
+        .browser-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.2); }
+        @media (max-width: 768px) {
+            .operators-grid { grid-template-columns: 1fr; padding: 20px 15px; }
+            #mainSearch { padding: 18px 60px 18px 18px; font-size: 16px; }
+            .header { flex-direction: column; gap: 10px; text-align: center; }
+            .current-datetime { font-size: 0.85em; }
+            .browser-buttons, .action-buttons { flex-direction: column; }
+            .date-row { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1> ௐ Target the Web</h1>
+        <div id="currentDateTime" class="current-datetime"></div>
+    </div>
+
+    <div class="search-container">
+        <!-- Main Search Input -->
+        <div class="main-input">
+            <input type="search" id="mainSearch" placeholder="Enter your keyword / link">
+            <button class="search-btn" onclick="generateQuery()">🔍</button>
+        </div>
+        
+        <!-- Section 1: File Types & Web Targeting -->
+        <div class="operators-grid">
+            <!-- FILE TYPES -->
+            <div class="operator-group">
+                <div class="operator-title">📄 File Types</div>
+                <div class="operator-inputs">
+                    <div class="input-with-clear">
+                        <select id="filetype" class="filetype-select">
+                            <option value="">Select from list...</option>
+                            <optgroup label="PDF"><option value="pdf">pdf</option></optgroup>
+                            <optgroup label="Photos">
+                                <option value="jpg">jpg</option><option value="jpeg">jpeg</option>
+                                <option value="png">png</option><option value="gif">gif</option>
+                                <option value="bmp">bmp</option><option value="tiff">tiff</option>
+                                <option value="webp">webp</option>
+                            </optgroup>
+                            <optgroup label="PPT">
+                                <option value="ppt">ppt</option><option value="pptx">pptx</option>
+                                <option value="pps">pps</option><option value="ppsx">ppsx</option>
+                            </optgroup>
+                            
+                            <optgroup label="Excel">
+                                <option value="xls">xls</option><option value="xlsx">xlsx</option>
+                                <option value="xlsm">xlsm</option><option value="csv">csv</option>
+                            </optgroup>
+                            <optgroup label="Videos">
+                                <option value="mp4">mp4</option><option value="avi">avi</option>
+                            </optgroup>
+                            <optgroup label="Webs">
+                                <option value="html">html</option><option value="php">php</option>
+                                <option value="js">js</option>
+                            </optgroup>
+                        </select>
+                        <button class="clear-btn" onclick="clearField('filetype')">×</button>
+                    </div>
+                    <div class="input-with-clear">
+                        <input type="search" id="ext" placeholder="Enter Yourself">
+                        <button class="clear-btn" onclick="clearField('ext')">×</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- WEB TARGETING -->
+            <div class="operator-group">
+                <div class="operator-title">🌐 Web Targeting</div>
+                <div class="operator-inputs">
+                    <div class="input-with-clear">
+                        <select id="site" class="filetype-select">
+                            <option value="">Select from list</option>
+                            <optgroup label="Commercial">
+                                <option value="com">.com</option><option value="net">.net</option>
+                                <option value="org">.org</option>
+                            </optgroup>
+                            <optgroup label="E-commerce">
+                                <option value="shop">.shop</option><option value="online">.online</option>
+                                <option value="store">.store</option>
+                            </optgroup>
+                            <optgroup label="Tech">
+                                <option value="io">.io</option><option value="app">.app</option>
+                                <option value="tech">.tech</option><option value="dev">.dev</option>
+                                <option value="edu">.edu</option>
+                            </optgroup>
+                            <optgroup label="Countries">
+                                <option value="in">.in - INDIA</option><option value="ru">.ru - RUSSIA</option>
+                                <option value="cn">.cn - CHINA</option><option value="br">.br - BRAZIL</option>
+                                <option value="de">.de - GERMANY</option><option value="fr">.fr - FRANCE</option>
+                                <option value="au">.au - AUSTRALIA</option><option value="eu">.eu - EU</option>
+                                <option value="pk">.pk - PAKISTAN</option><option value="bd">.bd - BANGLADESH</option>
+                                <option value="lk">.lk - SRI LANKA</option><option value="np">.np - NEPAL</option>
+                                <option value="us">.us - USA</option>
+                                <option value="il">.il - ISRAEL</option>
+                                <option value="ae">.ae - UAE</option>
+                                <option value="kr">.kr - SOUTH KOREA</option>
+                                <option value="ir">.ir - IRAN</option>
+                                <option value="kp">.kp - NORTH KOREA</option>
+                                <option value="za">.za - SOUTH AFRICA</option>
+                                <option value="ng">.ng - NIGERIA</option>
+                                <option value="ke">.ke - KENYA</option>
+                                <option value="ug">.ug - UGANDA</option>
+                                <option value="jm">.jm - JAMAICA</option>
+                                <option value="bb">.bb - BARBADOS</option>
+                            </optgroup>
+                        </select>
+                        <button class="clear-btn" onclick="clearField('site')">×</button>
+                    </div>
+                    <div class="input-with-clear">
+                        <input type="text" id="inurl" placeholder="Enter Yourself">
+                        <button class="clear-btn" onclick="clearField('inurl')">×</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Date Range & Content Targeting -->
+        <div class="operators-grid">
+            <!-- DATE RANGE -->
+            <div class="operator-group">
+                <div class="operator-title">📅 Date Range (after:before)</div>
+                <div class="operator-inputs">
+                    <div class="input-with-clear date-row">
+                        <input type="date" id="afterDate" class="date-input">
+                        <button class="clear-btn" onclick="clearField('afterDate')">×</button>
+                    </div>
+                    <div class="input-with-clear date-row">
+                        <input type="date" id="beforeDate" class="date-input">
+                        <button class="clear-btn" onclick="clearField('beforeDate')">×</button>
+                    </div>
+                    <small style="color: #666; font-size: 12px;">after:2026-03-01 before:2026-03-15</small>
+                </div>
+            </div>
+            
+            <!-- CONTENT TARGETING -->
+            <div class="operator-group">
+                <div class="operator-title">📋 Content Targeting</div>
+                <div class="operator-inputs">
+                    <div class="input-with-clear">
+                        <input type="text" id="intitle" placeholder="intitle: admin login">
+                        <button class="clear-btn" onclick="clearField('intitle')">×</button>
+                    </div>
+                    <div class="input-with-clear">
+                        <input type="text" id="link" placeholder="link: open.edu">
+                        <button class="clear-btn" onclick="clearField('link')">×</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <button class="btn btn-primary" onclick="generateQuery()">Generate Query</button>
+            <button class="btn btn-secondary" onclick="clearAll()">Clear All</button>
+        </div>
+        
+        <div class="results-area" id="resultsArea">
+            <div class="query-display" id="queryDisplay"></div>
+            <div style="text-align: center; color: #4a5568; font-size: 14px;">
+                Click the generated query to copy it to clipboard
+            </div>
+            <div class="browser-buttons" id="browserButtons" style="display: none;">
+                <button class="browser-btn" onclick="openInChrome()">🌐 Chrome</button>
+                <button class="browser-btn" onclick="openInBrave()">🦁 Brave</button>
+                <button class="browser-btn" onclick="openInYandex()">☁️ Yandex</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentQuery = '';
+        
+        function updateDateTime() {
+            const now = new Date();
+            const options = {
+                weekday: 'short', year: 'numeric', month: 'short', day: 'numeric',
+                hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
+                timeZone: 'Asia/Kolkata'
+            };
+            const dtElement = document.getElementById('currentDateTime');
+            if (dtElement) {
+                dtElement.textContent = now.toLocaleDateTimeString('en-IN', options);
+            }
+        }
+        updateDateTime(); setInterval(updateDateTime, 1000);
+
+        window.onload = function() {
+            const today = new Date().toISOString().split('T')[0];
+            const beforeDateEl = document.getElementById('beforeDate');
+            const afterDateEl = document.getElementById('afterDate');
+            if(beforeDateEl) beforeDateEl.max = today;
+            if(afterDateEl) afterDateEl.max = today;
+        };
+
+        function clearField(fieldId) {
+            const field = document.getElementById(fieldId);
+            if(!field) return;
+            field.value = ''; field.classList.remove('has-value');
+            const event = new Event('input', { bubbles: true });
+            field.dispatchEvent(event);
+        }
+
+        function clearAll() {
+            clearField('mainSearch');
+            clearField('filetype'); clearField('ext'); clearField('site'); clearField('inurl');
+            clearField('afterDate'); clearField('beforeDate'); 
+            clearField('intitle'); clearField('link');
+            const resArea = document.getElementById('resultsArea');
+            if(resArea) resArea.style.display = 'none';
+            const browserBtns = document.getElementById('browserButtons');
+            if(browserBtns) browserBtns.style.display = 'none';
+            currentQuery = '';
+        }
+
+        function generateQuery() {
+            const mainQuery = document.getElementById('mainSearch').value;
+            
+            const filetypeValue = document.getElementById('filetype').value || document.getElementById('ext').value;
+            const siteValue = document.getElementById('site').value;
+            const inurlValue = document.getElementById('inurl').value;
+            
+            // DATE RANGE
+            const afterDate = document.getElementById('afterDate').value;
+            const beforeDate = document.getElementById('beforeDate').value;
+            let dateRangeValue = '';
+            if (afterDate && beforeDate) {
+                dateRangeValue = `after:${afterDate} before:${beforeDate}`;
+            } else if (afterDate) {
+                dateRangeValue = `after:${afterDate}`;
+            } else if (beforeDate) {
+                dateRangeValue = `before:${beforeDate}`;
+            }
+            
+            const fields = {
+                filetype: filetypeValue,
+                site: siteValue ? `*.${siteValue}` : '',
+                inurl: inurlValue,
+                intitle: document.getElementById('intitle').value.trim(),
+                link: document.getElementById('link').value.trim(),
+                dateRange: dateRangeValue
+            };
+
+            const operators = [];
+            if (fields.filetype) operators.push(`filetype:${fields.filetype}`);
+            if (fields.site) operators.push(`site:${fields.site}`);
+            if (fields.inurl) operators.push(`inurl:${fields.inurl}`);
+            if (fields.intitle) operators.push(`intitle:${fields.intitle}`);
+            if (fields.link) operators.push(`link:${fields.link}`);
+            if (fields.dateRange) operators.push(fields.dateRange);
+
+            currentQuery = '';
+            if (mainQuery) currentQuery += mainQuery + ' ';
+            currentQuery += operators.join(' ');
+            
+            if (currentQuery.trim()) {
+                displayQuery(currentQuery.trim());
+            } else {
+                alert('Please enter a keyword or select an operator!');
+            }
+        }
+
+        function displayQuery(query) {
+            const resultsArea = document.getElementById('resultsArea');
+            const queryDisplay = document.getElementById('queryDisplay');
+            const browserButtons = document.getElementById('browserButtons');
+            
+            queryDisplay.textContent = query;
+            resultsArea.style.display = 'block';
+            browserButtons.style.display = 'flex';
+            resultsArea.scrollIntoView({ behavior: 'smooth' });
+            
+            queryDisplay.onclick = function() {
+                navigator.clipboard.writeText(query).then(() => {
+                    const original = queryDisplay.textContent;
+                    queryDisplay.textContent = '✅ Copied to clipboard!';
+                    setTimeout(() => { queryDisplay.textContent = original; }, 2000);
+                });
+            };
+        }
+
+        function openInChrome() {
+            window.open(`https://www.google.com/search?q=${encodeURIComponent(currentQuery)}`, '_blank');
+        }
+
+        function openInBrave() {
+            window.open(`https://search.brave.com/search?q=${encodeURIComponent(currentQuery)}`, '_blank');
+        }
+
+        function openInYandex() {
+            window.open(`https://yandex.ru/search/?text=${encodeURIComponent(currentQuery)}`, '_blank');
+        }
+
+        document.addEventListener('input', function(e) {
+            const container = e.target.closest('.input-with-clear');
+            if (container) {
+                if (e.target.value.trim()) container.classList.add('has-value');
+                else container.classList.remove('has-value');
+            }
+        });
+
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') generateQuery();
+        });
+    </script>
+</body>
+</html>
+```
